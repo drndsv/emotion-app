@@ -2,7 +2,12 @@
   "name": "@emotion-app/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "nx run-many --target=lint --all",
+    "lint:fix": "nx run-many --target=lint --all --fix",
+    "format": "nx format:write",
+    "format:check": "nx format:check"
+  },
   "private": true,
   "dependencies": {
     "@angular/common": "~21.2.0",
@@ -39,6 +44,7 @@
     "angular-eslint": "^21.2.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.32.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
     "jest-preset-angular": "~16.0.0",
