@@ -1,0 +1,126 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 12px 20px;
+  background: #eee9fb !important;
+  border-bottom: 1px solid #d9d4f0;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+
+  position: relative;
+  z-index: 1;
+
+  &__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 140px;
+    padding: 6px 16px;
+
+    border-radius: 999px;
+    background: #f8f6ff;
+    border: 1px solid #dcd6f3;
+    box-shadow:
+      2px 2px 6px rgba(0, 0, 0, 0.05),
+        -2px -2px 6px rgba(255, 255, 255, 0.7);
+
+    font: var(--tui-font-text-m);
+    font-weight: 600;
+    text-decoration: none;
+    color: #3f3566;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    margin-left: auto;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  &__link {
+    position: relative;
+
+    font: var(--tui-font-text-m);
+    font-weight: 500;
+    text-decoration: none;
+    color: #4b3f73;
+
+    transition:
+      opacity 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      opacity: 0.75;
+    }
+
+    &_active {
+      font-weight: 700;
+      color: #2f2550;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #7c6cff;
+        border-radius: 2px;
+      }
+    }
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px;
+    border-radius: 50%;
+    background: #f8f6ff;
+    box-shadow:
+      2px 2px 6px rgba(0, 0, 0, 0.05),
+        -2px -2px 6px rgba(255, 255, 255, 0.7);
+
+    color: #4b3f73;
+    text-decoration: none;
+  }
+
+  &__avatar {
+    color: #4b3f73;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+
+    &__actions {
+      justify-content: space-between;
+      gap: 16px;
+      margin-left: 0;
+    }
+
+    &__nav {
+      gap: 20px;
+      overflow-x: auto;
+    }
+
+    &__logo {
+      align-self: flex-start;
+    }
+  }
+}
