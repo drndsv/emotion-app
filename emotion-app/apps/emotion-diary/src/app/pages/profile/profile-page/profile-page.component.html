@@ -1,1 +1,74 @@
-<p>profile-page.component works!</p>
+<section class="profile-page">
+  <div class="profile-page__actions">
+    @if (isEditMode) {
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        (click)="saveProfile()"
+      >
+        Сохранить
+      </button>
+    } @else {
+      <button
+        tuiButton
+        appearance="outline"
+        size="m"
+        type="button"
+        (click)="toggleEditMode()"
+      >
+        Изменить данные
+      </button>
+    }
+  </div>
+
+  <form class="profile-page__form">
+    <label class="profile-page__field">
+      <span class="profile-page__label">Имя</span>
+
+      <tui-textfield class="profile-page__textfield">
+        <input
+          tuiInput
+          [formControl]="nameControl"
+          [readOnly]="!isEditMode"
+        />
+      </tui-textfield>
+    </label>
+
+    <label class="profile-page__field">
+      <span class="profile-page__label">Email</span>
+
+      <tui-textfield class="profile-page__textfield">
+        <input
+          tuiInput
+          [formControl]="emailControl"
+          [readOnly]="!isEditMode"
+        />
+      </tui-textfield>
+    </label>
+
+    <label class="profile-page__field">
+      <span class="profile-page__label">Пароль</span>
+
+      <tui-textfield class="profile-page__textfield">
+        <input
+          tuiInput
+          type="password"
+          [formControl]="passwordControl"
+          [readOnly]="!isEditMode"
+        />
+      </tui-textfield>
+    </label>
+  </form>
+
+  <button
+    tuiButton
+    appearance="outline"
+    size="m"
+    type="button"
+    class="profile-page__logout"
+  >
+    Выйти
+  </button>
+</section>
