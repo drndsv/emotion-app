@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+}
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 32px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.06),
+      -6px -6px 18px rgba(255, 255, 255, 0.9);
+
+  > * + * {
+    margin-top: 32px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__form > * + * {
+    margin-top: 16px;
+  }
+
+  &__field {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  &__label {
+    font: var(--tui-typography-body-m);
+    font-weight: 600;
+    color: #2f2550;
+  }
+
+  &__textfield {
+    width: 100%;
+  }
+
+  &__logout {
+    align-self: flex-start;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    > * + * {
+      margin-top: 24px;
+    }
+
+    &__actions {
+      justify-content: stretch;
+    }
+
+    &__actions button {
+      width: 100%;
+    }
+
+    &__form {
+      max-width: none;
+    }
+
+    &__field {
+      grid-template-columns: 1fr;
+    }
+
+    &__field > * + * {
+      margin-top: 8px;
+    }
+
+    &__logout {
+      width: 100%;
+      margin-top: 32px;
+    }
+  }
+}
