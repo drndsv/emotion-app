@@ -1,0 +1,160 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.journal-form-page {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 24px 32px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.06),
+      -6px -6px 18px rgba(255, 255, 255, 0.9);
+
+  > * + * {
+    margin-top: 28px;
+  }
+
+  &__title {
+    margin: 0;
+    font: var(--tui-typography-heading-h4);
+    color: #2f2550;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    max-width: 920px;
+  }
+
+  &__field > * + * {
+    margin-top: 12px;
+  }
+
+  &__label {
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__select {
+    width: 260px;
+  }
+
+  &__textarea-field {
+    width: 100%;
+    max-width: 920px;
+  }
+
+  &__analysis-button {
+    align-self: flex-end;
+  }
+
+  &__analysis {
+    max-width: 920px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__actions > * + * {
+    margin-left: 16px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    > * + * {
+      margin-top: 24px;
+    }
+
+    &__field {
+      max-width: none;
+    }
+
+    &__select {
+      width: 100%;
+    }
+
+    &__textarea-field {
+      max-width: none;
+    }
+
+    &__analysis-button {
+      align-self: stretch;
+    }
+
+    &__actions {
+      flex-direction: column;
+    }
+
+    &__actions > * + * {
+      margin-left: 0;
+      margin-top: 12px;
+    }
+  }
+}
+
+.analysis-block {
+  padding: 24px;
+  border: 2px dashed #7c6cff;
+  border-radius: 24px;
+  background: #fbfaff;
+
+  > * + * {
+    margin-top: 20px;
+  }
+
+  &__title {
+    margin: 0;
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__field > * + * {
+    margin-top: 10px;
+  }
+
+  &__label {
+    font: var(--tui-typography-body-m);
+    font-weight: 600;
+    color: #2f2550;
+  }
+
+  &__content {
+    padding: 14px 18px;
+
+    border-radius: 16px;
+    border: 1px solid #d7d1ea;
+    background: #ffffff;
+
+    font: var(--tui-typography-body-m);
+    color: #4b3f73;
+  }
+
+  &__select {
+    width: 260px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    &__select {
+      width: 100%;
+    }
+  }
+}
