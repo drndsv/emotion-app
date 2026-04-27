@@ -40,6 +40,10 @@ export const appRoutes: Route[] = [
         component: JournalDetailsPageComponent,
       },
       {
+        path: 'journal/:id/edit',
+        component: JournalFormPageComponent,
+      },
+      {
         path: 'profile',
         component: ProfilePageComponent,
       },
