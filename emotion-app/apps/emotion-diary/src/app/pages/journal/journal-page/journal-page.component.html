@@ -1,1 +1,48 @@
-<p>journal-page.component works!</p>
+<section class="journal-page">
+  <div class="journal-page__top">
+      <tui-textfield
+        iconStart="@tui.search"
+        tuiTextfieldSize="m"
+        class="journal-page__search"
+      >
+        <input
+          tuiInput
+          placeholder="Поиск"
+          [formControl]="searchControl"
+        />
+      </tui-textfield>
+
+    <a
+      routerLink="/journal/new"
+      tuiButton
+      appearance="outline"
+      size="m"
+      class="journal-page__create"
+    >
+      Создать запись
+    </a>
+  </div>
+
+  <section class="journal-page__list journal-list">
+    <h2 class="journal-list__title">Мои записи</h2>
+
+    <div class="journal-list__items">
+      @for (entry of filteredEntries; track entry.id) {
+        <a
+          [routerLink]="['/journal', entry.id]"
+          class="journal-list__item"
+        >
+          <div class="journal-list__meta">
+            <span class="journal-list__emoji">{{ entry.emoji }}</span>
+            <span class="journal-list__state">{{ entry.state }}</span>
+            <span class="journal-list__date">{{ entry.date }}</span>
+          </div>
+
+          <span class="journal-list__preview">
+            {{ entry.preview }}
+          </span>
+        </a>
+      }
+    </div>
+  </section>
+</section>

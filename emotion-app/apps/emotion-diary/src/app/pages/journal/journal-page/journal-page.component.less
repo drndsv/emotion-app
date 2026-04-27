@@ -1,0 +1,162 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.journal-page {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 24px 32px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.06),
+      -6px -6px 18px rgba(255, 255, 255, 0.9);
+
+  > * + * {
+    margin-top: 32px;
+  }
+
+  &__top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__search {
+    width: 100%;
+  }
+
+  &__create {
+    align-self: flex-end;
+    margin-top: 16px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+
+    > * + * {
+      margin-top: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    > * + * {
+      margin-top: 24px;
+    }
+
+    &__top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__create {
+      align-self: stretch;
+    }
+  }
+}
+
+.journal-list {
+  &__title {
+    margin: 0;
+
+    font: var(--tui-typography-heading-h5);
+    color: #2f2550;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+
+    > * + * {
+      margin-top: 16px;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 20px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #d7d1ea;
+    box-shadow:
+      3px 3px 10px rgba(0, 0, 0, 0.04),
+        -3px -3px 10px rgba(255, 255, 255, 0.9);
+
+    text-decoration: none;
+    color: inherit;
+
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        6px 6px 14px rgba(0, 0, 0, 0.06),
+          -4px -4px 10px rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 280px;
+  }
+
+  &__emoji {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  &__state {
+    font: var(--tui-typography-body-m);
+    font-weight: 600;
+    color: #3f3566;
+  }
+
+  &__date {
+    font: var(--tui-typography-body-m);
+    color: #5b517f;
+  }
+
+  &__preview {
+    flex: 1;
+
+    font: var(--tui-typography-body-m);
+    color: #4b3f73;
+    text-align: right;
+  }
+
+  @media (max-width: 768px) {
+    &__item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__meta {
+      min-width: auto;
+      flex-wrap: wrap;
+    }
+
+    &__preview {
+      text-align: left;
+    }
+  }
+}
