@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TuiButton, TuiInput } from '@taiga-ui/core';
+
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -10,6 +19,10 @@ import { TuiButton, TuiInput } from '@taiga-ui/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePageComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected isEditMode = false;
 
   protected readonly nameControl = new FormControl('Иван', {
@@ -30,5 +43,16 @@ export class ProfilePageComponent {
 
   protected saveProfile(): void {
     this.isEditMode = false;
+  }
+
+  protected logout(): void {
+    this.authService
+      .logout()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/login']);
+        },
+      });
   }
 }
