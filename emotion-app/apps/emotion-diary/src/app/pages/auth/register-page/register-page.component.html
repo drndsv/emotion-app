@@ -1,1 +1,52 @@
-<p>register-page.component works!</p>
+<section class="register-page">
+  <div class="register-page__card">
+    <a class="register-page__logo">
+      Emotion Diary
+    </a>
+
+    <h4 class="register-page__title">Регистрация</h4>
+
+    <form class="register-page__form">
+      <tui-textfield class="register-page__field">
+        <input
+          tuiInput
+          type="text"
+          placeholder="Имя"
+          [formControl]="nameControl"
+        />
+      </tui-textfield>
+
+      <tui-textfield class="register-page__field">
+        <input
+          tuiInput
+          type="email"
+          placeholder="Email"
+          [formControl]="emailControl"
+        />
+      </tui-textfield>
+
+      <tui-textfield class="register-page__field">
+        <input
+          tuiInput
+          type="password"
+          placeholder="Пароль"
+          [formControl]="passwordControl"
+        />
+      </tui-textfield>
+
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        class="register-page__submit"
+      >
+        Создать аккаунт
+      </button>
+    </form>
+
+    <a routerLink="/login" class="register-page__link">
+      Уже есть аккаунт? Войти
+    </a>
+  </div>
+</section>
