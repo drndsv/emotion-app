@@ -9,6 +9,7 @@ import { DashboardPageComponent } from './pages/dashboard/dashboard-page/dashboa
 import { JournalDetailsPageComponent } from './pages/journal/journal-details-page/journal-details-page.component';
 import { JournalFormPageComponent } from './pages/journal/journal-form-page/journal-form-page.component';
 import { JournalPageComponent } from './pages/journal/journal-page/journal-page.component';
+import { NotFoundPageComponent } from './pages/not-found/not-found-page.component';
 import { ProfilePageComponent } from './pages/profile/profile-page/profile-page.component';
 
 export const appRoutes: Route[] = [
@@ -41,12 +42,12 @@ export const appRoutes: Route[] = [
         component: JournalFormPageComponent,
       },
       {
-        path: 'journal/:id',
-        component: JournalDetailsPageComponent,
-      },
-      {
         path: 'journal/:id/edit',
         component: JournalFormPageComponent,
+      },
+      {
+        path: 'journal/:id',
+        component: JournalDetailsPageComponent,
       },
       {
         path: 'profile',
@@ -57,10 +58,14 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
         redirectTo: 'dashboard',
       },
+      {
+        path: '**',
+        component: NotFoundPageComponent,
+      },
     ],
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
   },
 ];

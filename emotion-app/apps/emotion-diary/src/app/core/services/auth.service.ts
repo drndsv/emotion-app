@@ -15,7 +15,9 @@ import { firebaseAuth } from '../firebase/firebase';
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
+  private readonly currentUserSubject = new BehaviorSubject<
+    User | null | undefined
+  >(undefined);
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
@@ -25,7 +27,7 @@ export class AuthService {
     });
   }
 
-  get currentUser(): User | null {
+  get currentUser(): User | null | undefined {
     return this.currentUserSubject.value;
   }
 
