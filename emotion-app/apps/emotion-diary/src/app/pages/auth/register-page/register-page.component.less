@@ -71,7 +71,16 @@
   }
 
   &__form > * + * {
-    margin-top: 16px;
+    margin-top: 8px;
+  }
+
+  &__control {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__control > * + * {
+    margin-top: 4px;
   }
 
   &__field {
@@ -89,6 +98,14 @@
     color: #3f3566;
     text-decoration: underline;
     text-underline-offset: 4px;
+  }
+
+  &__error {
+    margin: 0;
+
+    font: var(--tui-typography-body-s);
+    color: #c0392b;
+    text-align: center;
   }
 
   @media (max-width: 768px) {

@@ -1,25 +1,88 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { TuiButton, TuiInput } from '@taiga-ui/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { TuiButton, TuiError, TuiInput } from '@taiga-ui/core';
+import { TuiForm } from '@taiga-ui/layout';
+
+import {
+  AUTH_ERROR_MESSAGES,
+  DEFAULT_AUTH_ERROR_MESSAGE,
+} from '../../../core/config/auth-errors';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register-page',
-  imports: [RouterLink, TuiInput, ReactiveFormsModule, TuiButton],
+  imports: [
+    RouterLink,
+    TuiInput,
+    ReactiveFormsModule,
+    TuiButton,
+    TuiError,
+    TuiForm,
+  ],
   templateUrl: './register-page.component.html',
   styleUrl: './register-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterPageComponent {
-  protected readonly nameControl = new FormControl('', {
-    nonNullable: true,
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly errorMessage = signal('');
+
+  protected readonly form = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(2)],
+    }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(6)],
+    }),
   });
 
-  protected readonly emailControl = new FormControl('', {
-    nonNullable: true,
-  });
+  protected register(): void {
+    this.errorMessage.set('');
 
-  protected readonly passwordControl = new FormControl('', {
-    nonNullable: true,
-  });
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+
+      return;
+    }
+
+    const { email, password } = this.form.getRawValue();
+
+    this.authService
+      .register(email, password)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (error: { code?: string }) => {
+          this.errorMessage.set(
+            error.code !== undefined
+              ? (AUTH_ERROR_MESSAGES[error.code] ?? DEFAULT_AUTH_ERROR_MESSAGE)
+              : DEFAULT_AUTH_ERROR_MESSAGE,
+          );
+        },
+      });
+  }
 }

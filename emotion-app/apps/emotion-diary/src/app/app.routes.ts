@@ -1,5 +1,7 @@
 import { Route } from '@angular/router';
 
+import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 import { AppLayoutComponent } from './layout/app-layout.component';
 import { LoginPageComponent } from './pages/auth/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page/register-page.component';
@@ -7,21 +9,25 @@ import { DashboardPageComponent } from './pages/dashboard/dashboard-page/dashboa
 import { JournalDetailsPageComponent } from './pages/journal/journal-details-page/journal-details-page.component';
 import { JournalFormPageComponent } from './pages/journal/journal-form-page/journal-form-page.component';
 import { JournalPageComponent } from './pages/journal/journal-page/journal-page.component';
+import { NotFoundPageComponent } from './pages/not-found/not-found-page.component';
 import { ProfilePageComponent } from './pages/profile/profile-page/profile-page.component';
 
 export const appRoutes: Route[] = [
   {
     path: 'login',
+    canActivate: [guestGuard],
     component: LoginPageComponent,
   },
   {
     path: 'register',
+    canActivate: [guestGuard],
     component: RegisterPageComponent,
   },
 
   {
     path: '',
     component: AppLayoutComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
@@ -36,12 +42,12 @@ export const appRoutes: Route[] = [
         component: JournalFormPageComponent,
       },
       {
-        path: 'journal/:id',
-        component: JournalDetailsPageComponent,
-      },
-      {
         path: 'journal/:id/edit',
         component: JournalFormPageComponent,
+      },
+      {
+        path: 'journal/:id',
+        component: JournalDetailsPageComponent,
       },
       {
         path: 'profile',
@@ -52,10 +58,14 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
         redirectTo: 'dashboard',
       },
+      {
+        path: '**',
+        component: NotFoundPageComponent,
+      },
     ],
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
   },
 ];

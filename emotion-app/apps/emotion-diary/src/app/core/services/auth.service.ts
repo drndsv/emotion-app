@@ -5,7 +5,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   type User,
+  type UserCredential,
 } from 'firebase/auth';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 
 import { firebaseAuth } from '../firebase/firebase';
 
@@ -13,31 +15,35 @@ import { firebaseAuth } from '../firebase/firebase';
   providedIn: 'root',
 })
 export class AuthService {
-  private currentUserValue: User | null = null;
+  private readonly currentUserSubject = new BehaviorSubject<
+    User | null | undefined
+  >(undefined);
+
+  readonly currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
     onAuthStateChanged(firebaseAuth, (user) => {
-      this.currentUserValue = user;
+      this.currentUserSubject.next(user);
     });
   }
 
-  get currentUser(): User | null {
-    return this.currentUserValue;
+  get currentUser(): User | null | undefined {
+    return this.currentUserSubject.value;
   }
 
   get userId(): string | null {
-    return this.currentUserValue?.uid ?? null;
+    return this.currentUser?.uid ?? null;
   }
 
-  register(email: string, password: string) {
-    return createUserWithEmailAndPassword(firebaseAuth, email, password);
+  register(email: string, password: string): Observable<UserCredential> {
+    return from(createUserWithEmailAndPassword(firebaseAuth, email, password));
   }
 
-  login(email: string, password: string) {
-    return signInWithEmailAndPassword(firebaseAuth, email, password);
+  login(email: string, password: string): Observable<UserCredential> {
+    return from(signInWithEmailAndPassword(firebaseAuth, email, password));
   }
 
-  logout() {
-    return signOut(firebaseAuth);
+  logout(): Observable<void> {
+    return from(signOut(firebaseAuth));
   }
 }

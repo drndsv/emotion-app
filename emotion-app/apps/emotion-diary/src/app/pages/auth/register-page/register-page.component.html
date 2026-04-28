@@ -6,39 +6,74 @@
 
     <h4 class="register-page__title">Регистрация</h4>
 
-    <form class="register-page__form">
-      <tui-textfield class="register-page__field">
-        <input
-          tuiInput
-          type="text"
-          placeholder="Имя"
-          [formControl]="nameControl"
-        />
-      </tui-textfield>
+    <form
+      tuiForm="m"
+      class="register-page__form"
+      [formGroup]="form"
+      (ngSubmit)="register()"
+    >
+      <div class="register-page__control">
+        <label tuiLabel>
+          Имя
 
-      <tui-textfield class="register-page__field">
-        <input
-          tuiInput
-          type="email"
-          placeholder="Email"
-          [formControl]="emailControl"
-        />
-      </tui-textfield>
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="text"
+              placeholder="Введите имя"
+              formControlName="name"
+            />
+          </tui-textfield>
+        </label>
 
-      <tui-textfield class="register-page__field">
-        <input
-          tuiInput
-          type="password"
-          placeholder="Пароль"
-          [formControl]="passwordControl"
-        />
-      </tui-textfield>
+        <tui-error formControlName="name" />
+      </div>
+
+      <div class="register-page__control">
+        <label tuiLabel>
+          Email
+
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="email"
+              placeholder="Введите email"
+              formControlName="email"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="email" />
+      </div>
+
+      <div class="register-page__control">
+        <label tuiLabel>
+          Пароль
+
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="password"
+              placeholder="Введите пароль"
+              formControlName="password"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="password" />
+      </div>
+
+      @if (errorMessage()) {
+        <p class="register-page__error">
+          {{ errorMessage() }}
+        </p>
+      }
 
       <button
         tuiButton
         appearance="primary"
         size="m"
-        type="button"
+        type="submit"
         class="register-page__submit"
       >
         Создать аккаунт
