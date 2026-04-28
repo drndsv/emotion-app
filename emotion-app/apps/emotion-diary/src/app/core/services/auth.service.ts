@@ -5,7 +5,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   type User,
+  type UserCredential,
 } from 'firebase/auth';
+import { from, Observable } from 'rxjs';
 
 import { firebaseAuth } from '../firebase/firebase';
 
@@ -29,15 +31,15 @@ export class AuthService {
     return this.currentUserValue?.uid ?? null;
   }
 
-  register(email: string, password: string) {
-    return createUserWithEmailAndPassword(firebaseAuth, email, password);
+  register(email: string, password: string): Observable<UserCredential> {
+    return from(createUserWithEmailAndPassword(firebaseAuth, email, password));
   }
 
-  login(email: string, password: string) {
-    return signInWithEmailAndPassword(firebaseAuth, email, password);
+  login(email: string, password: string): Observable<UserCredential> {
+    return from(signInWithEmailAndPassword(firebaseAuth, email, password));
   }
 
-  logout() {
-    return signOut(firebaseAuth);
+  logout(): Observable<void> {
+    return from(signOut(firebaseAuth));
   }
 }
