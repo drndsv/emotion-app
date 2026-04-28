@@ -1,16 +1,16 @@
 <section class="journal-page">
   <div class="journal-page__top">
-      <tui-textfield
-        iconStart="@tui.search"
-        tuiTextfieldSize="m"
-        class="journal-page__search"
-      >
-        <input
-          tuiInput
-          placeholder="Поиск"
-          [formControl]="searchControl"
-        />
-      </tui-textfield>
+    <tui-textfield
+      iconStart="@tui.search"
+      tuiTextfieldSize="m"
+      class="journal-page__search"
+    >
+      <input
+        tuiInput
+        placeholder="Поиск"
+        [formControl]="searchControl"
+      />
+    </tui-textfield>
 
     <a
       routerLink="/journal/new"
@@ -27,21 +27,33 @@
     <h2 class="journal-list__title">Мои записи</h2>
 
     <div class="journal-list__items">
-      @for (entry of filteredEntries; track entry.id) {
+      @for (entry of filteredEntries(); track entry.id) {
         <a
           [routerLink]="['/journal', entry.id]"
           class="journal-list__item"
         >
           <div class="journal-list__meta">
-            <span class="journal-list__emoji">{{ entry.emoji }}</span>
-            <span class="journal-list__state">{{ entry.state }}</span>
-            <span class="journal-list__date">{{ entry.date }}</span>
+            <span class="journal-list__emoji">
+              {{ getStateEmoji(entry.finalState) }}
+            </span>
+
+            <span class="journal-list__state">
+              {{ getStateLabel(entry.finalState) }}
+            </span>
+
+            <span class="journal-list__date">
+              {{ formatDate(entry) }}
+            </span>
           </div>
 
           <span class="journal-list__preview">
-            {{ entry.preview }}
+            {{ entry.text }}
           </span>
         </a>
+      } @empty {
+        <p class="journal-list__empty">
+          Записей пока нет
+        </p>
       }
     </div>
   </section>

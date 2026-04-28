@@ -1,15 +1,27 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TuiButton, TuiInput } from '@taiga-ui/core';
+import { filter, startWith, switchMap } from 'rxjs';
 
-interface JournalEntry {
-  id: string;
-  state: string;
-  emoji: string;
-  date: string;
-  preview: string;
-}
+import {
+  DEFAULT_EMOTION_STATE_EMOJI,
+  DEFAULT_EMOTION_STATE_LABEL,
+  EMOTION_STATE_EMOJIS,
+  EMOTION_STATE_LABELS,
+} from '../../../core/constants/emotion-states';
+import { JournalEntry } from '../../../core/models/journal-entry.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { JournalService } from '../../../core/services/journal.service';
+import { formatJournalDate } from '../../../core/utils/date-format.util';
 
 @Component({
   selector: 'app-journal-page',
@@ -19,36 +31,55 @@ interface JournalEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalPageComponent {
+  private readonly authService = inject(AuthService);
+  private readonly journalService = inject(JournalService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly searchControl = new FormControl('', { nonNullable: true });
 
-  protected get filteredEntries(): readonly JournalEntry[] {
-    const query = this.searchControl.value.trim().toLowerCase();
+  private readonly searchQuery = toSignal(
+    this.searchControl.valueChanges.pipe(startWith(this.searchControl.value)),
+    { initialValue: '' },
+  );
+
+  protected readonly entries = signal<readonly JournalEntry[]>([]);
+
+  protected readonly filteredEntries = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    const entries = this.entries();
 
     if (!query) {
-      return this.entries;
+      return entries;
     }
 
-    return this.entries.filter((entry) =>
-      `${entry.state} ${entry.date} ${entry.preview}`
+    return entries.filter((entry) =>
+      `${entry.finalState} ${this.formatDate(entry)} ${entry.text}`
         .toLowerCase()
         .includes(query),
     );
+  });
+
+  constructor() {
+    this.authService.currentUser$
+      .pipe(
+        filter((user) => user !== null && user !== undefined),
+        switchMap((user) => this.journalService.getUserEntries(user.uid)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((entries) => {
+        this.entries.set(entries);
+      });
   }
 
-  protected readonly entries: readonly JournalEntry[] = [
-    {
-      id: '1',
-      state: 'Спокойствие',
-      emoji: '😌',
-      date: '12 апр 2026',
-      preview: 'Сегодня чувствую себя лучше...',
-    },
-    {
-      id: '2',
-      state: 'Тревога',
-      emoji: '😟',
-      date: '11 апр 2026',
-      preview: 'В первой половине дня было напряжённо...',
-    },
-  ];
+  protected getStateEmoji(state: string): string {
+    return EMOTION_STATE_EMOJIS[state] ?? DEFAULT_EMOTION_STATE_EMOJI;
+  }
+
+  protected getStateLabel(state: string): string {
+    return EMOTION_STATE_LABELS[state] ?? DEFAULT_EMOTION_STATE_LABEL;
+  }
+
+  protected formatDate(entry: JournalEntry): string {
+    return formatJournalDate(entry.createdAt);
+  }
 }
