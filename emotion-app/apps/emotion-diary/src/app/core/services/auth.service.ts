@@ -7,7 +7,7 @@ import {
   type User,
   type UserCredential,
 } from 'firebase/auth';
-import { from, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 
 import { firebaseAuth } from '../firebase/firebase';
 
@@ -15,20 +15,22 @@ import { firebaseAuth } from '../firebase/firebase';
   providedIn: 'root',
 })
 export class AuthService {
-  private currentUserValue: User | null = null;
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
+
+  readonly currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
     onAuthStateChanged(firebaseAuth, (user) => {
-      this.currentUserValue = user;
+      this.currentUserSubject.next(user);
     });
   }
 
   get currentUser(): User | null {
-    return this.currentUserValue;
+    return this.currentUserSubject.value;
   }
 
   get userId(): string | null {
-    return this.currentUserValue?.uid ?? null;
+    return this.currentUser?.uid ?? null;
   }
 
   register(email: string, password: string): Observable<UserCredential> {
