@@ -1,114 +1,133 @@
-<section class="journal-form-page">
-  <h1 class="journal-form-page__title">
-    {{ isEditMode ? 'Редактирование записи' : 'Новая запись' }}
-  </h1>
-
-  <div class="journal-form-page__field">
-    <label class="journal-form-page__label">
-      Как вы себя чувствуете?
-    </label>
-
-    <tui-textfield tuiChevron class="journal-form-page__select">
-      <input
-        tuiSelect
-        placeholder="Выберите состояние"
-        [formControl]="selectedStateControl"
-      />
-
-      <tui-data-list-wrapper
-        *tuiDropdown
-        [items]="states"
-      />
-    </tui-textfield>
+@if (isLoading()) {
+  <div class="journal-form-page__centered">
+    <tui-loader />
   </div>
+} @else {
+  <section class="journal-form-page">
+    <h1 class="journal-form-page__title">
+      {{ isEditMode ? 'Редактирование записи' : 'Новая запись' }}
+    </h1>
 
-  <div class="journal-form-page__field">
-    <label class="journal-form-page__label">
-      Текст записи
-    </label>
+    @if (errorMessage()) {
+      <p class="journal-form-page__error">
+        {{ errorMessage() }}
+      </p>
+    }
 
-    <tui-textfield class="journal-form-page__textarea-field">
-    <textarea
-      tuiTextarea
-      placeholder="Опишите, как вы себя чувствуете..."
-      [formControl]="textControl"
-      [limit]="500"
-      [min]="3"
-    ></textarea>
-    </tui-textfield>
+    <div class="journal-form-page__field">
+      <label class="journal-form-page__label">
+        Как вы себя чувствуете?
+      </label>
 
-    <button
-      tuiButton
-      appearance="outline"
-      size="m"
-      type="button"
-      class="journal-form-page__analysis-button"
-      (click)="runAnalysis()"
-    >
-      Выполнить анализ
-    </button>
-  </div>
+      <tui-textfield tuiChevron class="journal-form-page__select">
+        <input
+          tuiSelect
+          placeholder="Выберите состояние"
+          [formControl]="selectedStateControl"
+        />
 
-  @if (analysisResult !== null) {
-    <section class="journal-form-page__analysis analysis-block">
-      <h2 class="analysis-block__title">
-        Состояние по версии ИИ: {{ analysisResult.detectedState }}
-      </h2>
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="states"
+        />
+      </tui-textfield>
+    </div>
 
-      <div class="analysis-block__field">
-        <h3 class="analysis-block__label">Анализ</h3>
+    <div class="journal-form-page__field">
+      <label class="journal-form-page__label">
+        Текст записи
+      </label>
 
-        <div class="analysis-block__content">
-          {{ analysisResult.analysis }}
+      <tui-textfield class="journal-form-page__textarea-field">
+        <textarea
+          tuiTextarea
+          placeholder="Опишите, как вы себя чувствуете..."
+          [formControl]="textControl"
+          [limit]="500"
+          [min]="3"
+        ></textarea>
+      </tui-textfield>
+
+      <button
+        tuiButton
+        appearance="outline"
+        size="m"
+        type="button"
+        class="journal-form-page__analysis-button"
+        (click)="runAnalysis()"
+      >
+        Выполнить анализ
+      </button>
+    </div>
+
+    @if (analysisResult(); as analysisResult) {
+      <section class="journal-form-page__analysis analysis-block">
+        <h2 class="analysis-block__title">
+          Состояние по версии ИИ:
+          {{ getStateLabel(analysisResult.detectedState) }}
+        </h2>
+
+        <div class="analysis-block__field">
+          <h3 class="analysis-block__label">Анализ</h3>
+
+          <div class="analysis-block__content">
+            {{ analysisResult.analysis }}
+          </div>
         </div>
-      </div>
 
-      <div class="analysis-block__field">
-        <h3 class="analysis-block__label">Рекомендация от ИИ</h3>
+        <div class="analysis-block__field">
+          <h3 class="analysis-block__label">Рекомендация от ИИ</h3>
 
-        <div class="analysis-block__content">
-          {{ analysisResult.recommendation }}
+          <div class="analysis-block__content">
+            {{ analysisResult.recommendation }}
+          </div>
         </div>
-      </div>
 
-      <div class="analysis-block__field">
-        <label class="analysis-block__label">
-          Итоговое состояние
-        </label>
+        <div class="analysis-block__field">
+          <label class="analysis-block__label">
+            Итоговое состояние
+          </label>
 
-        <tui-textfield tuiChevron class="analysis-block__select">
-          <input
-            tuiSelect
-            placeholder="Выберите итоговое состояние"
-            [formControl]="finalStateControl"
-          />
+          <tui-textfield tuiChevron class="analysis-block__select">
+            <input
+              tuiSelect
+              placeholder="Выберите итоговое состояние"
+              [formControl]="finalStateControl"
+            />
 
-          <tui-data-list-wrapper
-            *tuiDropdown
-            [items]="states"
-          />
-        </tui-textfield>
-      </div>
-    </section>
-  }
+            <tui-data-list-wrapper
+              *tuiDropdown
+              [items]="states"
+            />
+          </tui-textfield>
+        </div>
+      </section>
+    }
 
-  <div class="journal-form-page__actions">
-    <a
-      routerLink="/journal"
-      tuiButton
-      appearance="outline"
-      size="m"
-    >
-      Отмена
-    </a>
+    <div class="journal-form-page__actions">
+      <a
+        routerLink="/journal"
+        tuiButton
+        appearance="outline"
+        size="m"
+      >
+        Отмена
+      </a>
 
-    <button
-      tuiButton
-      appearance="primary"
-      size="m"
-      type="button"
-    >
-      Сохранить запись
-    </button>
-  </div>
-</section>
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        [disabled]="isSaving()"
+        (click)="save()"
+      >
+        @if (isSaving()) {
+          Сохранение...
+        } @else {
+          Сохранить запись
+        }
+      </button>
+    </div>
+  </section>
+}
