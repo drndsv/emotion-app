@@ -1,67 +1,13 @@
-<section class="journal-details-page">
-  <div class="journal-details-page__header">
-    <div class="journal-details-page__info">
-      <h1 class="journal-details-page__title">Детали записи</h1>
-
-      <dl class="journal-details-page__meta">
-        <div class="journal-details-page__meta-row">
-          <dt>Дата:</dt>
-          <dd>{{ entry.date }}</dd>
-        </div>
-
-        <div class="journal-details-page__meta-row">
-          <dt>Выбранное состояние:</dt>
-          <dd>{{ entry.selectedState }}</dd>
-        </div>
-
-        <div class="journal-details-page__meta-row">
-          <dt>Состояние по версии ИИ:</dt>
-          <dd>{{ entry.detectedState }}</dd>
-        </div>
-
-        <div class="journal-details-page__meta-row">
-          <dt>Итоговое состояние:</dt>
-          <dd>{{ entry.finalState }}</dd>
-        </div>
-      </dl>
-    </div>
-
-    <a
-      [routerLink]="['/journal', entry.id, 'edit']"
-      tuiButton
-      appearance="outline"
-      size="m"
-      class="journal-details-page__edit"
-    >
-      Изменить запись
-    </a>
+@if (isLoading()) {
+  <div class="journal-details-page__centered">
+    <tui-loader class="journal-details-page__loader" />
   </div>
+} @else if (errorMessage()) {
+  <div class="journal-details-page__centered">
+    <p class="journal-details-page__empty">
+      {{ errorMessage() }}
+    </p>
 
-  <section class="journal-details-page__section details-section">
-    <h2 class="details-section__title">Текст записи</h2>
-
-    <div class="details-section__content">
-      {{ entry.text }}
-    </div>
-  </section>
-
-  <section class="journal-details-page__section details-section">
-    <h2 class="details-section__title">Анализ</h2>
-
-    <div class="details-section__content">
-      {{ entry.analysis }}
-    </div>
-  </section>
-
-  <section class="journal-details-page__section details-section">
-    <h2 class="details-section__title">Рекомендация от ИИ</h2>
-
-    <div class="details-section__content">
-      {{ entry.recommendation }}
-    </div>
-  </section>
-
-  <div class="journal-details-page__footer">
     <a
       routerLink="/journal"
       tuiButton
@@ -71,4 +17,94 @@
       К дневнику
     </a>
   </div>
-</section>
+} @else if (isNotFound()) {
+  <div class="journal-details-page__centered">
+    <p class="journal-details-page__empty">
+      Запись не найдена
+    </p>
+
+    <a
+      routerLink="/journal"
+      tuiButton
+      appearance="outline"
+      size="m"
+    >
+      К дневнику
+    </a>
+  </div>
+} @else if (entry(); as entry) {
+  <section class="journal-details-page">
+    <div class="journal-details-page__header">
+      <div class="journal-details-page__info">
+        <h1 class="journal-details-page__title">Детали записи</h1>
+
+        <dl class="journal-details-page__meta">
+          <div class="journal-details-page__meta-row">
+            <dt>Дата:</dt>
+            <dd>{{ formatDate(entry) }}</dd>
+          </div>
+
+          <div class="journal-details-page__meta-row">
+            <dt>Выбранное состояние:</dt>
+            <dd>{{ getStateLabel(entry.selectedState) }}</dd>
+          </div>
+
+          <div class="journal-details-page__meta-row">
+            <dt>Состояние по версии ИИ:</dt>
+            <dd>{{ getStateLabel(entry.detectedState) }}</dd>
+          </div>
+
+          <div class="journal-details-page__meta-row">
+            <dt>Итоговое состояние:</dt>
+            <dd>{{ getStateLabel(entry.finalState) }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <a
+        [routerLink]="['/journal', entry.id, 'edit']"
+        tuiButton
+        appearance="outline"
+        size="m"
+        class="journal-details-page__edit"
+      >
+        Изменить запись
+      </a>
+    </div>
+
+    <section class="journal-details-page__section details-section">
+      <h2 class="details-section__title">Текст записи</h2>
+
+      <div class="details-section__content">
+        {{ entry.text }}
+      </div>
+    </section>
+
+    <section class="journal-details-page__section details-section">
+      <h2 class="details-section__title">Анализ</h2>
+
+      <div class="details-section__content">
+        {{ entry.analysis }}
+      </div>
+    </section>
+
+    <section class="journal-details-page__section details-section">
+      <h2 class="details-section__title">Рекомендация от ИИ</h2>
+
+      <div class="details-section__content">
+        {{ entry.recommendation }}
+      </div>
+    </section>
+
+    <div class="journal-details-page__footer">
+      <a
+        routerLink="/journal"
+        tuiButton
+        appearance="outline"
+        size="m"
+      >
+        К дневнику
+      </a>
+    </div>
+  </section>
+}
