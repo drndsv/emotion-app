@@ -11,8 +11,8 @@ import { TuiButton, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, map, of, switchMap } from 'rxjs';
 
 import {
-  DEFAULT_EMOTION_STATE_LABEL,
-  EMOTION_STATE_LABELS,
+  EmotionState,
+  getEmotionLabel,
 } from '../../../core/constants/emotion-states';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
@@ -68,8 +68,8 @@ export class JournalDetailsPageComponent {
       });
   }
 
-  protected getStateLabel(state: string): string {
-    return EMOTION_STATE_LABELS[state] ?? DEFAULT_EMOTION_STATE_LABEL;
+  protected getStateLabel(state: EmotionState): string {
+    return getEmotionLabel(state);
   }
 
   protected formatDate(entry: JournalEntry): string {

@@ -13,10 +13,9 @@ import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, of, startWith, switchMap } from 'rxjs';
 
 import {
-  DEFAULT_EMOTION_STATE_EMOJI,
-  DEFAULT_EMOTION_STATE_LABEL,
-  EMOTION_STATE_EMOJIS,
-  EMOTION_STATE_LABELS,
+  EmotionState,
+  getEmotionEmoji,
+  getEmotionLabel,
 } from '../../../core/constants/emotion-states';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -82,12 +81,12 @@ export class JournalPageComponent {
       });
   }
 
-  protected getStateEmoji(state: string): string {
-    return EMOTION_STATE_EMOJIS[state] ?? DEFAULT_EMOTION_STATE_EMOJI;
+  protected getStateEmoji(state: EmotionState): string {
+    return getEmotionEmoji(state);
   }
 
-  protected getStateLabel(state: string): string {
-    return EMOTION_STATE_LABELS[state] ?? DEFAULT_EMOTION_STATE_LABEL;
+  protected getStateLabel(state: EmotionState): string {
+    return getEmotionLabel(state);
   }
 
   protected formatDate(entry: JournalEntry): string {
