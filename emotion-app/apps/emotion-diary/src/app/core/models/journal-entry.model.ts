@@ -1,12 +1,14 @@
 import { Timestamp } from 'firebase/firestore';
 
+import { EmotionState } from '../constants/emotion-states';
+
 export interface JournalEntry {
   id: string;
   userId: string;
   text: string;
-  selectedState: string;
-  detectedState: string;
-  finalState: string;
+  selectedState: EmotionState;
+  detectedState: EmotionState;
+  finalState: EmotionState;
   analysis: string;
   recommendation: string;
   createdAt: Timestamp;
