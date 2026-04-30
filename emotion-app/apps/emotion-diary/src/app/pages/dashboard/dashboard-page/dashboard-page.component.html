@@ -1,107 +1,195 @@
-<section class="dashboard-page">
-  <div class="dashboard-page__header">
-    <h1 class="dashboard-page__title">Добро пожаловать, {{ userName }}!</h1>
-
-    <a
-      routerLink="/journal/new"
-      tuiButton
-      appearance="outline"
-      size="m"
-      class="dashboard-page__action"
-    >
-      Создать запись
-    </a>
+@if (isLoading()) {
+  <div class="dashboard-page__centered">
+    <tui-loader />
   </div>
-
-  <div class="dashboard-page__analytics">
-    <article class="dashboard-page__card analytics-card">
-      <h2 class="analytics-card__title">График состояний</h2>
-
-      <div class="analytics-card__body">
-        <div class="state-chart">
-          <div class="state-chart__y-labels">
-            <span class="state-chart__y-label state-chart__y-label_top">
-              тревога
-            </span>
-            <span class="state-chart__y-label state-chart__y-label_bottom">
-              спокойствие
-            </span>
-          </div>
-
-          <div class="state-chart__content">
-            <tui-axes
-              class="state-chart__axes"
-              [horizontalLines]="3"
-              [verticalLines]="6"
-            >
-              <tui-line-chart
-                [filled]="true"
-                [height]="220"
-                [smoothingFactor]="0"
-                [value]="lineChartValue"
-                [width]="640"
-                [x]="0"
-                [y]="0"
-              />
-            </tui-axes>
-
-            <div class="state-chart__x-labels">
-              @for (label of lineChartDates; track label) {
-                <span class="state-chart__x-label">
-                  {{ label }}
-                </span>
-              }
-            </div>
-
-            <div class="state-chart__month">апрель</div>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <article class="dashboard-page__card analytics-card">
-      <h2 class="analytics-card__title">Распределение состояний</h2>
-
-      <div class="analytics-card__body analytics-card__body_centered">
-        <div class="distribution-chart">
-          <tui-ring-chart
-            class="distribution-chart__ring"
-            [value]="ringChartValue"
-            [(activeItemIndex)]="activeStateIndex"
-          >
-            <span class="distribution-chart__value">
-              {{ activeStateCount }}
-            </span>
-
-            <div class="distribution-chart__label">
-              {{ activeStateLabel }}
-            </div>
-          </tui-ring-chart>
-        </div>
-      </div>
-    </article>
-  </div>
-
-  <section class="dashboard-page__recent recent-entries">
-    <h2 class="recent-entries__title">Последние записи</h2>
-
-    <div class="recent-entries__list">
-      @for (entry of recentEntries; track entry.id) {
-        <a
-          [routerLink]="['/journal', entry.id]"
-          class="recent-entries__item"
-        >
-          <div class="recent-entries__meta">
-            <span class="recent-entries__emoji">{{ entry.emoji }}</span>
-            <span class="recent-entries__state">{{ entry.state }}</span>
-            <span class="recent-entries__date">{{ entry.date }}</span>
-          </div>
-
-          <span class="recent-entries__preview">
-            {{ entry.preview }}
-          </span>
-        </a>
-      }
-    </div>
+} @else if (errorMessage()) {
+  <section class="dashboard-page">
+    <p class="dashboard-page__empty">
+      {{ errorMessage() }}
+    </p>
   </section>
-</section>
+} @else {
+  <section class="dashboard-page">
+    <div class="dashboard-page__header">
+      <h1 class="dashboard-page__title">
+        Добро пожаловать, {{ userName() }}!
+      </h1>
+
+      <a
+        routerLink="/journal/new"
+        tuiButton
+        appearance="outline"
+        size="m"
+        class="dashboard-page__action"
+      >
+        Создать запись
+      </a>
+    </div>
+
+    @if (entries().length === 0) {
+      <p class="dashboard-page__empty">
+        Пока нет записей для аналитики. Создайте первую запись дневника.
+      </p>
+    } @else {
+      <div class="dashboard-page__analytics">
+        <article class="dashboard-page__card analytics-card">
+          <h2 class="analytics-card__title">
+            Эмоциональная динамика
+          </h2>
+
+          <div class="analytics-card__month-control">
+            <button
+              tuiButton
+              appearance="outline"
+              size="s"
+              type="button"
+              (click)="previousMonth()"
+            >
+              ←
+            </button>
+
+            <p class="analytics-card__subtitle">
+              {{ heatmapMonth() }}
+            </p>
+
+            <button
+              tuiButton
+              appearance="outline"
+              size="s"
+              type="button"
+              (click)="nextMonth()"
+            >
+              →
+            </button>
+          </div>
+
+          <div class="analytics-card__body">
+            <div class="emotion-heatmap-wrapper">
+              <div
+                class="emotion-heatmap"
+                [style.--days-count]="heatmapDays().length"
+              >
+                <div class="emotion-heatmap__corner"></div>
+
+                @for (day of heatmapDays(); track day) {
+                  <span class="emotion-heatmap__day-label">
+                    {{ day }}
+                  </span>
+                }
+
+                @for (period of dayPeriods; track period.value) {
+                  <span class="emotion-heatmap__period-label">
+                    {{ period.label }}
+                  </span>
+
+                  @for (day of heatmapDays(); track day) {
+                    @let cell = getHeatmapCell(day, period.value);
+
+                    @if (cell) {
+                      <a
+                        class="emotion-heatmap__cell"
+                        [class.emotion-heatmap__cell_empty]="cell.state === null"
+                        [class.emotion-heatmap__cell_joy]="cell.state === 'joy'"
+                        [class.emotion-heatmap__cell_calm]="cell.state === 'calm'"
+                        [class.emotion-heatmap__cell_neutral]="cell.state === 'neutral'"
+                        [class.emotion-heatmap__cell_anxiety]="cell.state === 'anxiety'"
+                        [class.emotion-heatmap__cell_sadness]="cell.state === 'sadness'"
+                        [routerLink]="cell.entry ? ['/journal', cell.entry.id] : null"
+                        [attr.title]="getHeatmapCellLabel(cell)"
+                      >
+                        @if (cell.count > 1) {
+                          <span class="emotion-heatmap__count">
+                            {{ cell.count }}
+                          </span>
+                        }
+                      </a>
+                    }
+                  }
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="emotion-legend">
+            <span class="emotion-legend__item emotion-legend__item_joy">
+              Радость
+            </span>
+
+            <span class="emotion-legend__item emotion-legend__item_calm">
+              Спокойствие
+            </span>
+
+            <span class="emotion-legend__item emotion-legend__item_neutral">
+              Нейтрально
+            </span>
+
+            <span class="emotion-legend__item emotion-legend__item_anxiety">
+              Тревога
+            </span>
+
+            <span class="emotion-legend__item emotion-legend__item_sadness">
+              Грусть
+            </span>
+          </div>
+        </article>
+
+        <article class="dashboard-page__card analytics-card">
+          <h2 class="analytics-card__title">
+            Распределение состояний
+          </h2>
+
+          <div class="analytics-card__body analytics-card__body_centered">
+            <div class="distribution-chart">
+              <tui-ring-chart
+                class="distribution-chart__ring"
+                [value]="ringChartValue()"
+                [(activeItemIndex)]="activeStateIndex"
+              >
+                <span class="distribution-chart__value">
+                  {{ activeStateCount }}
+                </span>
+
+                <div class="distribution-chart__label">
+                  {{ activeStateLabel }}
+                </div>
+              </tui-ring-chart>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <section class="dashboard-page__recent recent-entries">
+        <h2 class="recent-entries__title">
+          Последние записи
+        </h2>
+
+        <div class="recent-entries__list">
+          @for (entry of recentEntries(); track entry.id) {
+            <a
+              [routerLink]="['/journal', entry.id]"
+              class="recent-entries__item"
+            >
+              <div class="recent-entries__meta">
+                <span class="recent-entries__emoji">
+                  {{ getStateEmoji(entry.finalState) }}
+                </span>
+
+                <span class="recent-entries__state">
+                  {{ getStateLabel(entry.finalState) }}
+                </span>
+
+                <span class="recent-entries__date">
+                  {{ formatDate(entry) }}
+                </span>
+              </div>
+
+              <span class="recent-entries__preview">
+                {{ entry.text }}
+              </span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  </section>
+}
