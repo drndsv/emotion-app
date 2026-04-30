@@ -24,6 +24,14 @@
     margin-top: 32px;
   }
 
+  &__centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 300px;
+  }
+
   &__actions {
     display: flex;
     justify-content: flex-end;
@@ -54,6 +62,35 @@
     width: 100%;
   }
 
+  &__message {
+    margin: 0;
+    padding: 12px 16px;
+
+    border-radius: 16px;
+
+    font: var(--tui-typography-body-m);
+  }
+
+  &__message_error {
+    background: #fff3f3;
+    border: 1px solid #f0c4c4;
+    color: #b42318;
+  }
+
+  &__message_success {
+    background: #f1fbf4;
+    border: 1px solid #bfe8ca;
+    color: #267a3e;
+  }
+
+  &__email {
+    margin-top: 40px;
+  }
+
+  &__password {
+    margin-top: 40px;
+  }
+
   &__logout {
     align-self: flex-start;
     margin-top: 48px;
@@ -74,10 +111,6 @@
       width: 100%;
     }
 
-    &__form {
-      max-width: none;
-    }
-
     &__field {
       grid-template-columns: 1fr;
     }
@@ -89,6 +122,59 @@
     &__logout {
       width: 100%;
       margin-top: 32px;
+    }
+  }
+}
+
+.email-section,
+.password-section {
+  padding-top: 24px;
+  border-top: 1px solid #e4def7;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0;
+
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  &__form > * + * {
+    margin-top: 16px;
+  }
+
+  &__submit {
+    align-self: flex-end;
+    margin-top: 24px;
+  }
+
+  &__readonly {
+    margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__header > * + * {
+      margin-top: 12px;
+    }
+
+    &__submit {
+      align-self: stretch;
     }
   }
 }
