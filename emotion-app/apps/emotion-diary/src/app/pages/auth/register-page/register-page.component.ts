@@ -67,10 +67,10 @@ export class RegisterPageComponent {
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
+    const { name, email, password } = this.form.getRawValue();
 
     this.authService
-      .register(email, password)
+      .register(email, password, name)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
