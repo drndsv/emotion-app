@@ -1,16 +1,16 @@
 <section class="journal-page">
   <div class="journal-page__top">
-      <tui-textfield
-        iconStart="@tui.search"
-        tuiTextfieldSize="m"
-        class="journal-page__search"
-      >
-        <input
-          tuiInput
-          placeholder="Поиск"
-          [formControl]="searchControl"
-        />
-      </tui-textfield>
+    <tui-textfield
+      iconStart="@tui.search"
+      tuiTextfieldSize="m"
+      class="journal-page__search"
+    >
+      <input
+        tuiInput
+        placeholder="Поиск"
+        [formControl]="searchControl"
+      />
+    </tui-textfield>
 
     <a
       routerLink="/journal/new"
@@ -23,26 +23,50 @@
     </a>
   </div>
 
-  <section class="journal-page__list journal-list">
-    <h2 class="journal-list__title">Мои записи</h2>
-
-    <div class="journal-list__items">
-      @for (entry of filteredEntries; track entry.id) {
-        <a
-          [routerLink]="['/journal', entry.id]"
-          class="journal-list__item"
-        >
-          <div class="journal-list__meta">
-            <span class="journal-list__emoji">{{ entry.emoji }}</span>
-            <span class="journal-list__state">{{ entry.state }}</span>
-            <span class="journal-list__date">{{ entry.date }}</span>
-          </div>
-
-          <span class="journal-list__preview">
-            {{ entry.preview }}
-          </span>
-        </a>
-      }
+  @if (isLoading()) {
+    <div class="journal-page__centered">
+      <tui-loader />
     </div>
-  </section>
+  } @else if (errorMessage()) {
+    <div class="journal-page__centered">
+      <p class="journal-page__empty">
+        {{ errorMessage() }}
+      </p>
+    </div>
+  } @else {
+    <section class="journal-page__list journal-list">
+      <h2 class="journal-list__title">Мои записи</h2>
+
+      <div class="journal-list__items">
+        @for (entry of filteredEntries(); track entry.id) {
+          <a
+            [routerLink]="['/journal', entry.id]"
+            class="journal-list__item"
+          >
+            <div class="journal-list__meta">
+              <span class="journal-list__emoji">
+                {{ getStateEmoji(entry.finalState) }}
+              </span>
+
+              <span class="journal-list__state">
+                {{ getStateLabel(entry.finalState) }}
+              </span>
+
+              <span class="journal-list__date">
+                {{ formatDate(entry) }}
+              </span>
+            </div>
+
+            <span class="journal-list__preview">
+              {{ entry.text }}
+            </span>
+          </a>
+        } @empty {
+          <p class="journal-list__empty">
+            Записей пока нет
+          </p>
+        }
+      </div>
+    </section>
+  }
 </section>

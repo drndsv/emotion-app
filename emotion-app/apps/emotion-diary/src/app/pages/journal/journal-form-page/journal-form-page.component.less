@@ -70,6 +70,18 @@
     margin-left: 16px;
   }
 
+  &__error {
+    margin: 0;
+    padding: 12px 16px;
+
+    border-radius: 16px;
+    background: #fff3f3;
+    border: 1px solid #f0c4c4;
+
+    font: var(--tui-typography-body-m);
+    color: #b42318;
+  }
+
   @media (max-width: 768px) {
     padding: 20px;
 
@@ -102,6 +114,14 @@
       margin-top: 12px;
     }
   }
+}
+
+.journal-form-page__centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 300px;
 }
 
 .analysis-block {
