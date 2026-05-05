@@ -56,8 +56,18 @@
         class="journal-form-page__analysis-button"
         (click)="runAnalysis()"
       >
-        Выполнить анализ
+        @if (isAnalyzing()) {
+          Анализ...
+        } @else {
+          Выполнить анализ
+        }
       </button>
+
+      @if (analysisErrorMessage()) {
+        <p class="journal-form-page__error">
+          {{ analysisErrorMessage() }}
+        </p>
+      }
     </div>
 
     @if (analysisResult(); as analysisResult) {
