@@ -41,6 +41,14 @@ export const EMOTION_STATE_OPTIONS: readonly EmotionStateOption[] = (
 export const EMOTION_STATE_LABELS: readonly string[] =
   EMOTION_STATE_OPTIONS.map((option) => option.label);
 
+export const EMOTION_STATE_ORDER: readonly EmotionState[] = [
+  'joy',
+  'calm',
+  'neutral',
+  'anxiety',
+  'sadness',
+];
+
 export const getEmotionLabel = (state: EmotionState): string =>
   EMOTION_STATES[state]?.label ?? 'Неизвестно';
 

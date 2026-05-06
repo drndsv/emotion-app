@@ -111,29 +111,22 @@
           </div>
 
           <div class="emotion-legend">
-            <span class="emotion-legend__item emotion-legend__item_joy">
-              Радость
-            </span>
-
-            <span class="emotion-legend__item emotion-legend__item_calm">
-              Спокойствие
-            </span>
-
-            <span class="emotion-legend__item emotion-legend__item_neutral">
-              Нейтрально
-            </span>
-
-            <span class="emotion-legend__item emotion-legend__item_anxiety">
-              Тревога
-            </span>
-
-            <span class="emotion-legend__item emotion-legend__item_sadness">
-              Грусть
-            </span>
+            @for (state of emotionStateOrder; track state) {
+              <span
+                class="emotion-legend__item"
+                [class.emotion-legend__item_joy]="state === 'joy'"
+                [class.emotion-legend__item_calm]="state === 'calm'"
+                [class.emotion-legend__item_neutral]="state === 'neutral'"
+                [class.emotion-legend__item_anxiety]="state === 'anxiety'"
+                [class.emotion-legend__item_sadness]="state === 'sadness'"
+              >
+                {{ getStateLabel(state) }}
+              </span>
+            }
           </div>
         </article>
 
-        <article class="dashboard-page__card analytics-card">
+        <article class="dashboard-page__card analytics-card analytics-card_distribution">
           <h2 class="analytics-card__title">
             Распределение состояний
           </h2>
