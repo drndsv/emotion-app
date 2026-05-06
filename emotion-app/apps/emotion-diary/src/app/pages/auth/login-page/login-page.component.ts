@@ -16,11 +16,9 @@ import { Router, RouterLink } from '@angular/router';
 import { TuiButton, TuiError, TuiInput } from '@taiga-ui/core';
 import { TuiForm } from '@taiga-ui/layout';
 
-import {
-  AUTH_ERROR_MESSAGES,
-  DEFAULT_AUTH_ERROR_MESSAGE,
-} from '../../../core/config/auth-errors';
+import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
 import { AuthService } from '../../../core/services/auth.service';
+import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 
 @Component({
   selector: 'app-login-page',
@@ -51,7 +49,10 @@ export class LoginPageComponent {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)],
+      validators: [
+        Validators.required,
+        Validators.minLength(AUTH_PASSWORD_MIN_LENGTH),
+      ],
     }),
   });
 
@@ -77,12 +78,7 @@ export class LoginPageComponent {
         },
         error: (error: { code?: string }) => {
           this.isLoading.set(false);
-
-          this.errorMessage.set(
-            error.code !== undefined
-              ? (AUTH_ERROR_MESSAGES[error.code] ?? DEFAULT_AUTH_ERROR_MESSAGE)
-              : DEFAULT_AUTH_ERROR_MESSAGE,
-          );
+          this.errorMessage.set(getAuthErrorMessage(error));
         },
       });
   }
