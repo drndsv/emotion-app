@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { functions } from '@emotion-app/firebase';
+import { getFunctionsInstance } from '@emotion-app/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { from, map, Observable } from 'rxjs';
 
@@ -9,11 +9,13 @@ import { EmotionAnalysisResult } from '../models/emotion-analysis-result.model';
   providedIn: 'root',
 })
 export class EmotionAnalysisService {
+  private readonly functions = getFunctionsInstance();
+
   analyze(text: string): Observable<EmotionAnalysisResult> {
     const analyzeEmotion = httpsCallable<
       { text: string },
       EmotionAnalysisResult
-    >(functions, 'analyzeEmotion');
+    >(this.functions, 'analyzeEmotion');
 
     return from(analyzeEmotion({ text })).pipe(map((result) => result.data));
   }

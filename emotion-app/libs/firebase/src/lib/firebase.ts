@@ -1,16 +1,40 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { connectFunctionsEmulator, getFunctions } from 'firebase/functions';
+import { FirebaseApp, FirebaseOptions, initializeApp } from 'firebase/app';
+import { Auth, getAuth } from 'firebase/auth';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import {
+  connectFunctionsEmulator,
+  Functions,
+  getFunctions,
+} from 'firebase/functions';
 
-import { environment } from '../../../../apps/emotion-diary/src/environments/environment';
+let firebaseApp: FirebaseApp;
+let firebaseAuthInstance: Auth;
+let firestoreInstance: Firestore;
+let functionsInstance: Functions;
 
-export const firebaseApp = initializeApp(environment.firebase);
+export function initializeFirebase(
+  firebaseOptions: FirebaseOptions,
+  useFunctionsEmulator: boolean,
+): void {
+  firebaseApp = initializeApp(firebaseOptions);
 
-export const firebaseAuth = getAuth(firebaseApp);
-export const firestore = getFirestore(firebaseApp);
-export const functions = getFunctions(firebaseApp, 'europe-west1');
+  firebaseAuthInstance = getAuth(firebaseApp);
+  firestoreInstance = getFirestore(firebaseApp);
+  functionsInstance = getFunctions(firebaseApp, 'europe-west1');
 
-if (!environment.production) {
-  connectFunctionsEmulator(functions, 'localhost', 5001);
+  if (useFunctionsEmulator) {
+    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+  }
+}
+
+export function getFirebaseAuth(): Auth {
+  return firebaseAuthInstance;
+}
+
+export function getFirestoreInstance(): Firestore {
+  return firestoreInstance;
+}
+
+export function getFunctionsInstance(): Functions {
+  return functionsInstance;
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firestore } from '@emotion-app/firebase';
+import { getFirestoreInstance } from '@emotion-app/firebase';
 import {
   addDoc,
   collection,
@@ -24,11 +24,13 @@ import {
   providedIn: 'root',
 })
 export class JournalService {
-  private readonly collectionName = 'journalEntries';
+  private readonly firestore = getFirestoreInstance();
+
+  private readonly collectionName = 'journalEntries' as const;
 
   getUserEntries(userId: string): Observable<JournalEntry[]> {
     const entriesQuery = query(
-      collection(firestore, this.collectionName),
+      collection(this.firestore, this.collectionName),
       where('userId', '==', userId),
       orderBy('createdAt', 'desc'),
     );
@@ -47,7 +49,7 @@ export class JournalService {
   }
 
   getEntryById(id: string): Observable<JournalEntry | null> {
-    const entryRef = doc(firestore, this.collectionName, id);
+    const entryRef = doc(this.firestore, this.collectionName, id);
 
     return from(getDoc(entryRef)).pipe(
       map((snapshot) => {
@@ -65,7 +67,7 @@ export class JournalService {
 
   createEntry(entry: CreateJournalEntry): Observable<string> {
     return from(
-      addDoc(collection(firestore, this.collectionName), {
+      addDoc(collection(this.firestore, this.collectionName), {
         ...entry,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -74,7 +76,7 @@ export class JournalService {
   }
 
   updateEntry(id: string, entry: UpdateJournalEntry): Observable<void> {
-    const entryRef = doc(firestore, this.collectionName, id);
+    const entryRef = doc(this.firestore, this.collectionName, id);
 
     return from(
       updateDoc(entryRef, {

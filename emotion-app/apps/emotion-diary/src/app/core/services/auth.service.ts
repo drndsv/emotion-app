@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firebaseAuth } from '@emotion-app/firebase';
+import { getFirebaseAuth } from '@emotion-app/firebase';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -19,6 +19,8 @@ import { BehaviorSubject, from, map, Observable, switchMap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly firebaseAuth = getFirebaseAuth();
+
   private readonly currentUserSubject = new BehaviorSubject<
     User | null | undefined
   >(undefined);
@@ -26,7 +28,7 @@ export class AuthService {
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    onAuthStateChanged(firebaseAuth, (user) => {
+    onAuthStateChanged(this.firebaseAuth, (user) => {
       this.currentUserSubject.next(user);
     });
   }
@@ -45,7 +47,7 @@ export class AuthService {
     name: string,
   ): Observable<UserCredential> {
     return from(
-      createUserWithEmailAndPassword(firebaseAuth, email, password),
+      createUserWithEmailAndPassword(this.firebaseAuth, email, password),
     ).pipe(
       switchMap((credential) =>
         from(
@@ -58,11 +60,11 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<UserCredential> {
-    return from(signInWithEmailAndPassword(firebaseAuth, email, password));
+    return from(signInWithEmailAndPassword(this.firebaseAuth, email, password));
   }
 
   logout(): Observable<void> {
-    return from(signOut(firebaseAuth));
+    return from(signOut(this.firebaseAuth));
   }
 
   updateProfileData(name: string): Observable<void> {
