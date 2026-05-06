@@ -7,13 +7,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { EmotionState } from '@emotion-app/shared';
 import { TuiButton, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, map, of, switchMap } from 'rxjs';
 
-import {
-  EmotionState,
-  getEmotionLabel,
-} from '../../../core/constants/emotion-states';
+import { getEmotionLabel } from '../../../core/constants/emotion-states';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
 import { formatJournalDate } from '../../../core/utils/date-format.util';

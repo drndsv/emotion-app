@@ -9,11 +9,11 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { EmotionState } from '@emotion-app/shared';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, of, startWith, switchMap } from 'rxjs';
 
 import {
-  EmotionState,
   getEmotionEmoji,
   getEmotionLabel,
 } from '../../../core/constants/emotion-states';

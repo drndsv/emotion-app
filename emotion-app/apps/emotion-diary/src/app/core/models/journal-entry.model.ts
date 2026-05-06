@@ -1,6 +1,5 @@
+import { EmotionState } from '@emotion-app/shared';
 import { Timestamp } from 'firebase/firestore';
-
-import { EmotionState } from '../constants/emotion-states';
 
 export interface JournalEntry {
   id: string;

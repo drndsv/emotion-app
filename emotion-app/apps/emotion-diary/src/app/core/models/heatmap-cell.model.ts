@@ -1,4 +1,4 @@
-import { EmotionState } from '../constants/emotion-states';
+import { EmotionState } from '@emotion-app/shared';
 
 import { DayPeriod } from './day-period.model';
 import { JournalEntry } from './journal-entry.model';

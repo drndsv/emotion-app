@@ -1,4 +1,4 @@
-import { EmotionState } from '../constants/emotion-states';
+import { EmotionState } from '@emotion-app/shared';
 
 export interface AnalysisResult {
   detectedState: EmotionState;

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { EmotionState } from '@emotion-app/shared';
 import { TuiRingChart } from '@taiga-ui/addon-charts';
 import { TuiButton, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, of, switchMap } from 'rxjs';
@@ -26,7 +27,6 @@ import {
 import { DAY_PERIODS } from '../../../core/constants/day-periods';
 import {
   EMOTION_STATE_ORDER,
-  EmotionState,
   getEmotionEmoji,
   getEmotionLabel,
 } from '../../../core/constants/emotion-states';
