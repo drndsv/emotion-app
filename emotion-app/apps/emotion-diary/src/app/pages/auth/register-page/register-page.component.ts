@@ -42,6 +42,7 @@ export class RegisterPageComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal('');
+  protected readonly isLoading = signal(false);
 
   protected readonly form = new FormGroup({
     name: new FormControl('', {
@@ -69,6 +70,8 @@ export class RegisterPageComponent {
 
     const { name, email, password } = this.form.getRawValue();
 
+    this.isLoading.set(true);
+
     this.authService
       .register(email, password, name)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -77,6 +80,8 @@ export class RegisterPageComponent {
           void this.router.navigate(['/dashboard']);
         },
         error: (error: { code?: string }) => {
+          this.isLoading.set(false);
+
           this.errorMessage.set(
             error.code !== undefined
               ? (AUTH_ERROR_MESSAGES[error.code] ?? DEFAULT_AUTH_ERROR_MESSAGE)
