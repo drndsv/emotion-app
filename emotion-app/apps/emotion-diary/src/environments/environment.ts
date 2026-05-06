@@ -1,4 +1,6 @@
 export const environment = {
+  production: false,
+
   firebase: {
     apiKey: 'AIzaSyDXByH4tnLg30YYWZQC9dPSo-kks-E_K4I',
     authDomain: 'emotion-diary-24141.firebaseapp.com',

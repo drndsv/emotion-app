@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { firebaseAuth } from '@emotion-app/firebase';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -13,8 +14,6 @@ import {
   type UserCredential,
 } from 'firebase/auth';
 import { BehaviorSubject, from, map, Observable, switchMap } from 'rxjs';
-
-import { firebaseAuth } from '../firebase/firebase';
 
 @Injectable({
   providedIn: 'root',
