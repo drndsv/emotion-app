@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { firestore } from '@emotion-app/firebase';
 import {
   addDoc,
   collection,
@@ -13,7 +14,6 @@ import {
 } from 'firebase/firestore';
 import { from, map, Observable } from 'rxjs';
 
-import { firestore } from '../firebase/firebase';
 import {
   CreateJournalEntry,
   JournalEntry,
