@@ -8,6 +8,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EmotionAnalysisService } from '@emotion-app/emotion-analysis';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import {
   TuiChevron,
@@ -49,6 +50,7 @@ export class JournalFormPageComponent {
   private readonly router = inject(Router);
   private readonly journalService = inject(JournalService);
   private readonly authService = inject(AuthService);
+  private readonly emotionAnalysisService = inject(EmotionAnalysisService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly entryId = this.route.snapshot.paramMap.get('id');
@@ -74,21 +76,47 @@ export class JournalFormPageComponent {
 
   protected readonly isLoading = signal(false);
   protected readonly isSaving = signal(false);
+  protected readonly isAnalyzing = signal(false);
+
   protected readonly errorMessage = signal('');
+  protected readonly analysisErrorMessage = signal('');
 
   constructor() {
     this.loadEntryForEdit();
   }
 
   protected runAnalysis(): void {
-    const result: AnalysisResult = {
-      detectedState: 'sadness',
-      analysis: 'Текст выражает усталость и лёгкую грусть.',
-      recommendation: 'Попробуйте отдохнуть и переключиться.',
-    };
+    if (this.textControl.invalid) {
+      this.textControl.markAsTouched();
+      this.analysisErrorMessage.set(
+        'Введите текст записи минимум из 3 символов',
+      );
 
-    this.analysisResult.set(result);
-    this.finalStateControl.setValue(getEmotionLabel(result.detectedState));
+      return;
+    }
+
+    this.isAnalyzing.set(true);
+    this.errorMessage.set('');
+    this.analysisErrorMessage.set('');
+
+    this.emotionAnalysisService
+      .analyze(this.textControl.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.isAnalyzing.set(false);
+          this.analysisResult.set(result);
+          this.finalStateControl.setValue(
+            getEmotionLabel(result.detectedState),
+          );
+        },
+        error: () => {
+          this.isAnalyzing.set(false);
+          this.analysisErrorMessage.set(
+            'Не удалось выполнить анализ. Попробуйте позже.',
+          );
+        },
+      });
   }
 
   protected save(): void {
