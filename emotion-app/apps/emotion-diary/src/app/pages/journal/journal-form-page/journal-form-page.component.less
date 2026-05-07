@@ -1,3 +1,5 @@
+@import '../styles/journal-shared';
+
 :host {
   display: block;
   width: 100%;
@@ -5,26 +7,16 @@
 }
 
 .journal-form-page {
+  &:extend(.journal-shell all);
+
   --journal-form-content-width: 920px;
   --journal-form-select-width: 260px;
 
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
   max-width: 920px;
-  min-width: 0;
-  box-sizing: border-box;
+  margin: 0 auto;
 
-  padding: 24px 32px;
-  border-radius: 28px;
-  background: #ffffff;
-  box-shadow:
-    6px 6px 18px rgba(0, 0, 0, 0.06),
-      -6px -6px 18px rgba(255, 255, 255, 0.9);
-
-  > * + * {
-    margin-top: 28px;
+  &__centered {
+    &:extend(.journal-centered all);
   }
 
   &__title {
@@ -87,12 +79,6 @@
   }
 
   @media (max-width: 768px) {
-    padding: 20px;
-
-    > * + * {
-      margin-top: 24px;
-    }
-
     &__field {
       max-width: none;
     }
@@ -118,14 +104,6 @@
       margin-top: 12px;
     }
   }
-}
-
-.journal-form-page__centered {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 300px;
 }
 
 .analysis-block {
@@ -162,11 +140,11 @@
   }
 
   &__content {
+    &:extend(.journal-card all);
+
     padding: 14px 18px;
 
     border-radius: 16px;
-    border: 1px solid #d7d1ea;
-    background: #ffffff;
 
     font: var(--tui-typography-body-m);
     color: #4b3f73;
