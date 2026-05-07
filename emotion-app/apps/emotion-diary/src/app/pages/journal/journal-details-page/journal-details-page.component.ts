@@ -12,6 +12,8 @@ import { TuiButton, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, map, of, switchMap } from 'rxjs';
 
 import { getEmotionLabel } from '../../../core/constants/emotion-states';
+import { JOURNAL_MESSAGES } from '../../../core/constants/journal';
+import { JOURNAL_ENTRY_ID_PARAM } from '../../../core/constants/journal-form';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
 import { formatJournalDate } from '../../../core/utils/date-format.util';
@@ -28,6 +30,8 @@ export class JournalDetailsPageComponent {
   private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly notFoundMessage = JOURNAL_MESSAGES.notFound;
+
   protected readonly entry = signal<JournalEntry | null>(null);
   protected readonly isLoading = signal(true);
   protected readonly isNotFound = signal(false);
@@ -36,12 +40,12 @@ export class JournalDetailsPageComponent {
   constructor() {
     this.route.paramMap
       .pipe(
-        map((params) => params.get('id')),
+        map((params) => params.get(JOURNAL_ENTRY_ID_PARAM)),
         filter((id): id is string => id !== null),
         switchMap((id) =>
           this.journalService.getEntryById(id).pipe(
             catchError(() => {
-              this.errorMessage.set('Ошибка загрузки. Попробуйте позже');
+              this.errorMessage.set(JOURNAL_MESSAGES.loadFailed);
 
               return of(null);
             }),

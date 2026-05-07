@@ -5,10 +5,14 @@
 }
 
 .journal-details-page {
+  --journal-details-content-width: 920px;
+  --journal-details-centered-height: 300px;
+
   display: flex;
   flex-direction: column;
 
   width: 100%;
+  max-width: 920px;
   min-width: 0;
   box-sizing: border-box;
 
@@ -29,7 +33,7 @@
     align-items: center;
     justify-content: center;
 
-    min-height: 300px;
+    min-height: var(--journal-details-centered-height);
   }
 
   &__centered > * + * {
@@ -100,7 +104,7 @@
   }
 
   &__section {
-    max-width: 920px;
+    max-width: var(--journal-details-content-width);
   }
 
   &__footer {

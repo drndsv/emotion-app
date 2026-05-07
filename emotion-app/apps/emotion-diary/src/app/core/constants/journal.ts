@@ -1,3 +1,4 @@
 export const JOURNAL_MESSAGES = {
-  loadFailed: 'Ошибка загрузки записей',
+  loadFailed: 'Ошибка загрузки. Попробуйте позже',
+  notFound: 'Запись не найдена',
 } as const;
