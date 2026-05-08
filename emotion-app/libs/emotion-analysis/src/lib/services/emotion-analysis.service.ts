@@ -3,7 +3,11 @@ import { getFunctionsInstance } from '@emotion-app/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { from, map, Observable } from 'rxjs';
 
-import { EmotionAnalysisResult } from '../models/emotion-analysis-result.model';
+import { ANALYZE_EMOTION_FUNCTION_NAME } from '../constants/emotion-analysis';
+import {
+  AnalyzeEmotionRequest,
+  EmotionAnalysisResult,
+} from '../models/emotion-analysis-result.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,12 +15,16 @@ import { EmotionAnalysisResult } from '../models/emotion-analysis-result.model';
 export class EmotionAnalysisService {
   private readonly functions = getFunctionsInstance();
 
-  analyze(text: string): Observable<EmotionAnalysisResult> {
-    const analyzeEmotion = httpsCallable<
-      { text: string },
-      EmotionAnalysisResult
-    >(this.functions, 'analyzeEmotion');
+  private readonly analyzeEmotionCallable = httpsCallable<
+    AnalyzeEmotionRequest,
+    EmotionAnalysisResult
+  >(this.functions, ANALYZE_EMOTION_FUNCTION_NAME);
 
-    return from(analyzeEmotion({ text })).pipe(map((result) => result.data));
+  analyze(text: string): Observable<EmotionAnalysisResult> {
+    return from(
+      this.analyzeEmotionCallable({
+        text,
+      }),
+    ).pipe(map((result) => result.data));
   }
 }

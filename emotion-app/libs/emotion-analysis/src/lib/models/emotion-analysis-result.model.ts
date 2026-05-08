@@ -5,3 +5,7 @@ export interface EmotionAnalysisResult {
   analysis: string;
   recommendation: string;
 }
+
+export interface AnalyzeEmotionRequest {
+  text: string;
+}
