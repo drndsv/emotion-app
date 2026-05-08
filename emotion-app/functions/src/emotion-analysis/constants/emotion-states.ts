@@ -1,9 +1,4 @@
-import {
-  EMOTION_STATES,
-  EmotionState,
-} from '../models/emotion-analysis-result.model';
-
-export { EMOTION_STATES };
+import { EmotionState } from '@emotion-app/shared';
 
 export const DEFAULT_ANALYSIS =
   'Эмоциональное состояние было определено автоматически.';

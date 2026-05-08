@@ -1,12 +1,4 @@
-export const EMOTION_STATES = [
-  'joy',
-  'calm',
-  'neutral',
-  'anxiety',
-  'sadness',
-] as const;
-
-export type EmotionState = (typeof EMOTION_STATES)[number];
+import { EmotionState } from '@emotion-app/shared';
 
 export interface EmotionAnalysisResult {
   detectedState: EmotionState;
