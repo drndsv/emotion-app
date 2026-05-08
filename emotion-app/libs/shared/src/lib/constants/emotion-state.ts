@@ -1,40 +1,51 @@
-export const EMOTION_STATES = {
-  calm: {
-    label: 'Спокойствие',
-    emoji: '😌',
-  },
-  joy: {
-    label: 'Радость',
-    emoji: '😊',
-  },
-  sadness: {
-    label: 'Грусть',
-    emoji: '😔',
-  },
-  anxiety: {
-    label: 'Тревога',
-    emoji: '😟',
-  },
-  anger: {
-    label: 'Злость',
-    emoji: '😠',
-  },
-  neutral: {
-    label: 'Нейтрально',
-    emoji: '😐',
-  },
-} as const;
-
-export type EmotionState = keyof typeof EMOTION_STATES;
-
-export const EMOTION_STATE_ORDER: readonly EmotionState[] = [
+export const EMOTION_STATE_ORDER = [
   'joy',
   'calm',
   'neutral',
   'anxiety',
   'sadness',
   'anger',
-];
+] as const;
+
+export type EmotionState = (typeof EMOTION_STATE_ORDER)[number];
+
+export const EMOTION_STATES: Record<
+  EmotionState,
+  {
+    label: string;
+    emoji: string;
+  }
+> = {
+  joy: {
+    label: 'Радость',
+    emoji: '😊',
+  },
+
+  calm: {
+    label: 'Спокойствие',
+    emoji: '😌',
+  },
+
+  neutral: {
+    label: 'Нейтрально',
+    emoji: '😐',
+  },
+
+  anxiety: {
+    label: 'Тревога',
+    emoji: '😟',
+  },
+
+  sadness: {
+    label: 'Грусть',
+    emoji: '😔',
+  },
+
+  anger: {
+    label: 'Злость',
+    emoji: '😠',
+  },
+};
 
 export const UNKNOWN_EMOTION_LABEL = 'Неизвестно';
 
