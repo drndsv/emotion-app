@@ -1,3 +1,5 @@
+@import '../styles/journal-shared';
+
 :host {
   display: block;
   width: 100%;
@@ -5,22 +7,16 @@
 }
 
 .journal-form-page {
-  display: flex;
-  flex-direction: column;
+  &:extend(.journal-shell all);
 
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  --journal-form-content-width: 920px;
+  --journal-form-select-width: 260px;
 
-  padding: 24px 32px;
-  border-radius: 28px;
-  background: #ffffff;
-  box-shadow:
-    6px 6px 18px rgba(0, 0, 0, 0.06),
-      -6px -6px 18px rgba(255, 255, 255, 0.9);
+  max-width: 920px;
+  margin: 0 auto;
 
-  > * + * {
-    margin-top: 28px;
+  &__centered {
+    &:extend(.journal-centered all);
   }
 
   &__title {
@@ -32,7 +28,7 @@
   &__field {
     display: flex;
     flex-direction: column;
-    max-width: 920px;
+    max-width: var(--journal-form-content-width);
   }
 
   &__field > * + * {
@@ -45,12 +41,12 @@
   }
 
   &__select {
-    width: 260px;
+    width: var(--journal-form-select-width);
   }
 
   &__textarea-field {
     width: 100%;
-    max-width: 920px;
+    max-width: var(--journal-form-content-width);
   }
 
   &__analysis-button {
@@ -58,7 +54,7 @@
   }
 
   &__analysis {
-    max-width: 920px;
+    max-width: var(--journal-form-content-width);
   }
 
   &__actions {
@@ -83,12 +79,6 @@
   }
 
   @media (max-width: 768px) {
-    padding: 20px;
-
-    > * + * {
-      margin-top: 24px;
-    }
-
     &__field {
       max-width: none;
     }
@@ -116,15 +106,9 @@
   }
 }
 
-.journal-form-page__centered {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 300px;
-}
-
 .analysis-block {
+  --analysis-block-select-width: 260px;
+
   padding: 24px;
   border: 2px dashed #7c6cff;
   border-radius: 24px;
@@ -156,18 +140,18 @@
   }
 
   &__content {
+    &:extend(.journal-card all);
+
     padding: 14px 18px;
 
     border-radius: 16px;
-    border: 1px solid #d7d1ea;
-    background: #ffffff;
 
     font: var(--tui-typography-body-m);
     color: #4b3f73;
   }
 
   &__select {
-    width: 260px;
+    width: var(--analysis-block-select-width);
   }
 
   @media (max-width: 768px) {

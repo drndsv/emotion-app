@@ -9,6 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EmotionAnalysisService } from '@emotion-app/emotion-analysis';
+import { EmotionState } from '@emotion-app/shared';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import {
   TuiChevron,
@@ -20,10 +21,16 @@ import { catchError, Observable, of } from 'rxjs';
 
 import {
   EMOTION_STATE_LABELS,
-  EmotionState,
   getEmotionLabel,
   getEmotionStateByLabel,
 } from '../../../core/constants/emotion-states';
+import {
+  JOURNAL_ENTRY_ID_PARAM,
+  JOURNAL_FALLBACK_DETECTED_STATE,
+  JOURNAL_FORM_MESSAGES,
+  JOURNAL_TEXT_MAX_LENGTH,
+  JOURNAL_TEXT_MIN_LENGTH,
+} from '../../../core/constants/journal-form';
 import { AnalysisResult } from '../../../core/models/analysis-result.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
@@ -53,8 +60,12 @@ export class JournalFormPageComponent {
   private readonly emotionAnalysisService = inject(EmotionAnalysisService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly entryId = this.route.snapshot.paramMap.get('id');
+  protected readonly entryId = this.route.snapshot.paramMap.get(
+    JOURNAL_ENTRY_ID_PARAM,
+  );
   protected readonly isEditMode = this.entryId !== null;
+  protected readonly textMinLength = JOURNAL_TEXT_MIN_LENGTH;
+  protected readonly textMaxLength = JOURNAL_TEXT_MAX_LENGTH;
 
   protected readonly states = EMOTION_STATE_LABELS;
 
@@ -69,7 +80,10 @@ export class JournalFormPageComponent {
 
   protected readonly textControl = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(3)],
+    validators: [
+      Validators.required,
+      Validators.minLength(JOURNAL_TEXT_MIN_LENGTH),
+    ],
   });
 
   protected readonly analysisResult = signal<AnalysisResult | null>(null);
@@ -88,9 +102,7 @@ export class JournalFormPageComponent {
   protected runAnalysis(): void {
     if (this.textControl.invalid) {
       this.textControl.markAsTouched();
-      this.analysisErrorMessage.set(
-        'Введите текст записи минимум из 3 символов',
-      );
+      this.analysisErrorMessage.set(JOURNAL_FORM_MESSAGES.textTooShort);
 
       return;
     }
@@ -112,9 +124,7 @@ export class JournalFormPageComponent {
         },
         error: () => {
           this.isAnalyzing.set(false);
-          this.analysisErrorMessage.set(
-            'Не удалось выполнить анализ. Попробуйте позже.',
-          );
+          this.analysisErrorMessage.set(JOURNAL_FORM_MESSAGES.analysisFailed);
         },
       });
   }
@@ -126,7 +136,7 @@ export class JournalFormPageComponent {
     const finalState = getEmotionStateByLabel(this.finalStateControl.value);
 
     if (this.textControl.invalid || selectedState === null) {
-      this.errorMessage.set('Заполните все обязательные поля');
+      this.errorMessage.set(JOURNAL_FORM_MESSAGES.requiredFields);
 
       return;
     }
@@ -134,7 +144,7 @@ export class JournalFormPageComponent {
     const user = this.authService.currentUser;
 
     if (!user) {
-      this.errorMessage.set('Пользователь не авторизован');
+      this.errorMessage.set(JOURNAL_FORM_MESSAGES.notAuthorized);
 
       return;
     }
@@ -160,7 +170,7 @@ export class JournalFormPageComponent {
       },
       error: () => {
         this.isSaving.set(false);
-        this.errorMessage.set('Ошибка сохранения');
+        this.errorMessage.set(JOURNAL_FORM_MESSAGES.saveFailed);
       },
     });
   }
@@ -180,7 +190,7 @@ export class JournalFormPageComponent {
       .getEntryById(this.entryId)
       .pipe(
         catchError(() => {
-          this.errorMessage.set('Ошибка загрузки записи');
+          this.errorMessage.set(JOURNAL_FORM_MESSAGES.loadFailed);
 
           return of(null);
         }),
@@ -221,7 +231,8 @@ export class JournalFormPageComponent {
       userId: params.userId,
       text: params.text,
       selectedState: params.selectedState,
-      detectedState: analysisResult?.detectedState ?? 'neutral',
+      detectedState:
+        analysisResult?.detectedState ?? JOURNAL_FALLBACK_DETECTED_STATE,
       finalState:
         params.finalState ??
         analysisResult?.detectedState ??

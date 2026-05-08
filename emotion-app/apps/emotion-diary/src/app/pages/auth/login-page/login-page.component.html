@@ -58,8 +58,13 @@
         size="m"
         type="submit"
         class="login-page__submit"
+        [disabled]="isLoading()"
       >
-        Войти
+        @if (isLoading()) {
+          Вход...
+        } @else {
+          Войти
+        }
       </button>
     </form>
 

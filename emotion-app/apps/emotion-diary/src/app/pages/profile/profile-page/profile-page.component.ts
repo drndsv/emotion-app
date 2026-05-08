@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import { filter } from 'rxjs';
 
+import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
+import { PROFILE_MESSAGES } from '../../../core/constants/profile';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -24,6 +26,8 @@ export class ProfilePageComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly passwordMinLength = AUTH_PASSWORD_MIN_LENGTH;
 
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
@@ -65,7 +69,10 @@ export class ProfilePageComponent {
 
   protected readonly newPasswordControl = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(6)],
+    validators: [
+      Validators.required,
+      Validators.minLength(AUTH_PASSWORD_MIN_LENGTH),
+    ],
   });
 
   constructor() {
@@ -78,7 +85,7 @@ export class ProfilePageComponent {
         this.isLoading.set(false);
 
         if (user === null) {
-          this.errorMessage.set('Пользователь не авторизован');
+          this.errorMessage.set(PROFILE_MESSAGES.notAuthorized);
 
           return;
         }
@@ -103,7 +110,7 @@ export class ProfilePageComponent {
 
   protected saveProfile(): void {
     if (this.nameControl.invalid) {
-      this.errorMessage.set('Введите имя');
+      this.errorMessage.set(PROFILE_MESSAGES.nameRequired);
 
       return;
     }
@@ -118,11 +125,11 @@ export class ProfilePageComponent {
         next: () => {
           this.isSaving.set(false);
           this.isEditMode.set(false);
-          this.successMessage.set('Данные профиля сохранены');
+          this.successMessage.set(PROFILE_MESSAGES.profileSaved);
         },
         error: () => {
           this.isSaving.set(false);
-          this.errorMessage.set('Не удалось сохранить данные профиля');
+          this.errorMessage.set(PROFILE_MESSAGES.profileSaveFailed);
         },
       });
   }
@@ -137,7 +144,7 @@ export class ProfilePageComponent {
 
   protected changeEmail(): void {
     if (this.newEmailControl.invalid || this.emailPasswordControl.invalid) {
-      this.errorMessage.set('Введите корректный email и текущий пароль');
+      this.errorMessage.set(PROFILE_MESSAGES.emailInvalid);
 
       return;
     }
@@ -154,15 +161,11 @@ export class ProfilePageComponent {
           this.isEmailEditMode.set(false);
           this.newEmailControl.reset();
           this.emailPasswordControl.reset();
-          this.successMessage.set(
-            'Письмо для подтверждения нового email отправлено. Перейдите по ссылке в письме.',
-          );
+          this.successMessage.set(PROFILE_MESSAGES.emailConfirmationSent);
         },
         error: () => {
           this.isChangingEmail.set(false);
-          this.errorMessage.set(
-            'Не удалось отправить письмо для смены email. Проверьте текущий пароль или попробуйте другой email.',
-          );
+          this.errorMessage.set(PROFILE_MESSAGES.emailChangeFailed);
         },
       });
   }
@@ -172,9 +175,7 @@ export class ProfilePageComponent {
       this.currentPasswordControl.invalid ||
       this.newPasswordControl.invalid
     ) {
-      this.errorMessage.set(
-        'Введите текущий пароль и новый пароль не короче 6 символов',
-      );
+      this.errorMessage.set(PROFILE_MESSAGES.passwordInvalid);
 
       return;
     }
@@ -194,13 +195,11 @@ export class ProfilePageComponent {
           this.isPasswordEditMode.set(false);
           this.currentPasswordControl.reset();
           this.newPasswordControl.reset();
-          this.successMessage.set('Пароль успешно изменён');
+          this.successMessage.set(PROFILE_MESSAGES.passwordChanged);
         },
         error: () => {
           this.isChangingPassword.set(false);
-          this.errorMessage.set(
-            'Не удалось изменить пароль. Проверьте текущий пароль.',
-          );
+          this.errorMessage.set(PROFILE_MESSAGES.passwordChangeFailed);
         },
       });
   }
@@ -219,7 +218,7 @@ export class ProfilePageComponent {
         },
         error: () => {
           this.isLogoutLoading.set(false);
-          this.errorMessage.set('Не удалось выйти из аккаунта');
+          this.errorMessage.set(PROFILE_MESSAGES.logoutFailed);
         },
       });
   }

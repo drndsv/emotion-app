@@ -17,10 +17,11 @@ import { TuiButton, TuiError, TuiInput } from '@taiga-ui/core';
 import { TuiForm } from '@taiga-ui/layout';
 
 import {
-  AUTH_ERROR_MESSAGES,
-  DEFAULT_AUTH_ERROR_MESSAGE,
-} from '../../../core/config/auth-errors';
+  AUTH_NAME_MIN_LENGTH,
+  AUTH_PASSWORD_MIN_LENGTH,
+} from '../../../core/constants/auth';
 import { AuthService } from '../../../core/services/auth.service';
+import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 
 @Component({
   selector: 'app-register-page',
@@ -42,11 +43,15 @@ export class RegisterPageComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal('');
+  protected readonly isLoading = signal(false);
 
   protected readonly form = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2)],
+      validators: [
+        Validators.required,
+        Validators.minLength(AUTH_NAME_MIN_LENGTH),
+      ],
     }),
     email: new FormControl('', {
       nonNullable: true,
@@ -54,7 +59,10 @@ export class RegisterPageComponent {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)],
+      validators: [
+        Validators.required,
+        Validators.minLength(AUTH_PASSWORD_MIN_LENGTH),
+      ],
     }),
   });
 
@@ -69,6 +77,8 @@ export class RegisterPageComponent {
 
     const { name, email, password } = this.form.getRawValue();
 
+    this.isLoading.set(true);
+
     this.authService
       .register(email, password, name)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -77,11 +87,8 @@ export class RegisterPageComponent {
           void this.router.navigate(['/dashboard']);
         },
         error: (error: { code?: string }) => {
-          this.errorMessage.set(
-            error.code !== undefined
-              ? (AUTH_ERROR_MESSAGES[error.code] ?? DEFAULT_AUTH_ERROR_MESSAGE)
-              : DEFAULT_AUTH_ERROR_MESSAGE,
-          );
+          this.isLoading.set(false);
+          this.errorMessage.set(getAuthErrorMessage(error));
         },
       });
   }

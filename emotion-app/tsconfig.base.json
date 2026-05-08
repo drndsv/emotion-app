@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@emotion-app/emotion-analysis": ["libs/emotion-analysis/src/index.ts"],
-      "@emotion-app/firebase": ["libs/firebase/src/index.ts"]
+      "@emotion-app/firebase": ["libs/firebase/src/index.ts"],
+      "@emotion-app/shared": ["libs/shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

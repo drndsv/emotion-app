@@ -43,8 +43,8 @@
           tuiTextarea
           placeholder="Опишите, как вы себя чувствуете..."
           [formControl]="textControl"
-          [limit]="500"
-          [min]="3"
+          [limit]="textMaxLength"
+          [min]="textMinLength"
         ></textarea>
       </tui-textfield>
 

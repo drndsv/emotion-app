@@ -16,11 +16,9 @@ import { Router, RouterLink } from '@angular/router';
 import { TuiButton, TuiError, TuiInput } from '@taiga-ui/core';
 import { TuiForm } from '@taiga-ui/layout';
 
-import {
-  AUTH_ERROR_MESSAGES,
-  DEFAULT_AUTH_ERROR_MESSAGE,
-} from '../../../core/config/auth-errors';
+import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
 import { AuthService } from '../../../core/services/auth.service';
+import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 
 @Component({
   selector: 'app-login-page',
@@ -42,6 +40,7 @@ export class LoginPageComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal('');
+  protected readonly isLoading = signal(false);
 
   protected readonly form = new FormGroup({
     email: new FormControl('', {
@@ -50,7 +49,10 @@ export class LoginPageComponent {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)],
+      validators: [
+        Validators.required,
+        Validators.minLength(AUTH_PASSWORD_MIN_LENGTH),
+      ],
     }),
   });
 
@@ -65,6 +67,8 @@ export class LoginPageComponent {
 
     const { email, password } = this.form.getRawValue();
 
+    this.isLoading.set(true);
+
     this.authService
       .login(email, password)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -73,11 +77,8 @@ export class LoginPageComponent {
           void this.router.navigate(['/dashboard']);
         },
         error: (error: { code?: string }) => {
-          this.errorMessage.set(
-            error.code !== undefined
-              ? (AUTH_ERROR_MESSAGES[error.code] ?? DEFAULT_AUTH_ERROR_MESSAGE)
-              : DEFAULT_AUTH_ERROR_MESSAGE,
-          );
+          this.isLoading.set(false);
+          this.errorMessage.set(getAuthErrorMessage(error));
         },
       });
   }
