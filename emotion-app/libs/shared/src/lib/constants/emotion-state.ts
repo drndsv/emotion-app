@@ -15,6 +15,10 @@ export const EMOTION_STATES = {
     label: 'Тревога',
     emoji: '😟',
   },
+  anger: {
+    label: 'Злость',
+    emoji: '😠',
+  },
   neutral: {
     label: 'Нейтрально',
     emoji: '😐',
@@ -29,6 +33,7 @@ export const EMOTION_STATE_ORDER: readonly EmotionState[] = [
   'neutral',
   'anxiety',
   'sadness',
+  'anger',
 ];
 
 export const UNKNOWN_EMOTION_LABEL = 'Неизвестно';
