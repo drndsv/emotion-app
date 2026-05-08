@@ -7,10 +7,21 @@ import {
   getFunctions,
 } from 'firebase/functions';
 
-let firebaseApp: FirebaseApp;
-let firebaseAuthInstance: Auth;
-let firestoreInstance: Firestore;
-let functionsInstance: Functions;
+import {
+  FIREBASE_FUNCTIONS_EMULATOR_HOST,
+  FIREBASE_FUNCTIONS_EMULATOR_PORT,
+  FIREBASE_FUNCTIONS_REGION,
+} from './constants/firebase';
+import {
+  FIREBASE_AUTH_NOT_INITIALIZED_ERROR,
+  FIREBASE_FUNCTIONS_NOT_INITIALIZED_ERROR,
+  FIRESTORE_NOT_INITIALIZED_ERROR,
+} from './constants/firebase-errors';
+
+let firebaseApp: FirebaseApp | null = null;
+let firebaseAuthInstance: Auth | null = null;
+let firestoreInstance: Firestore | null = null;
+let functionsInstance: Functions | null = null;
 
 export function initializeFirebase(
   firebaseOptions: FirebaseOptions,
@@ -20,21 +31,37 @@ export function initializeFirebase(
 
   firebaseAuthInstance = getAuth(firebaseApp);
   firestoreInstance = getFirestore(firebaseApp);
-  functionsInstance = getFunctions(firebaseApp, 'europe-west1');
+  functionsInstance = getFunctions(firebaseApp, FIREBASE_FUNCTIONS_REGION);
 
   if (useFunctionsEmulator) {
-    connectFunctionsEmulator(functionsInstance, 'localhost', 5001);
+    connectFunctionsEmulator(
+      functionsInstance,
+      FIREBASE_FUNCTIONS_EMULATOR_HOST,
+      FIREBASE_FUNCTIONS_EMULATOR_PORT,
+    );
   }
 }
 
 export function getFirebaseAuth(): Auth {
+  if (firebaseAuthInstance === null) {
+    throw new Error(FIREBASE_AUTH_NOT_INITIALIZED_ERROR);
+  }
+
   return firebaseAuthInstance;
 }
 
 export function getFirestoreInstance(): Firestore {
+  if (firestoreInstance === null) {
+    throw new Error(FIRESTORE_NOT_INITIALIZED_ERROR);
+  }
+
   return firestoreInstance;
 }
 
 export function getFunctionsInstance(): Functions {
+  if (functionsInstance === null) {
+    throw new Error(FIREBASE_FUNCTIONS_NOT_INITIALIZED_ERROR);
+  }
+
   return functionsInstance;
 }
