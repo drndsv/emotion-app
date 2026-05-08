@@ -1,12 +1,4 @@
-import { EmotionState } from '../models/emotion-analysis-result.model';
-
-export const EMOTION_STATES: readonly EmotionState[] = [
-  'joy',
-  'calm',
-  'neutral',
-  'anxiety',
-  'sadness',
-];
+import { EmotionState } from '@emotion-app/shared';
 
 export const DEFAULT_ANALYSIS =
   'Эмоциональное состояние было определено автоматически.';

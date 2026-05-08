@@ -1,3 +1,5 @@
+@import '../styles/journal-shared';
+
 :host {
   display: block;
   width: 100%;
@@ -5,23 +7,7 @@
 }
 
 .journal-page {
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-
-  padding: 24px 32px;
-  border-radius: 28px;
-  background: #ffffff;
-  box-shadow:
-    6px 6px 18px rgba(0, 0, 0, 0.06),
-      -6px -6px 18px rgba(255, 255, 255, 0.9);
-
-  > * + * {
-    margin-top: 32px;
-  }
+  &:extend(.journal-shell all);
 
   &__top {
     display: flex;
@@ -47,20 +33,16 @@
   }
 
   &__centered {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    &:extend(.journal-centered all);
 
     min-height: 200px;
   }
 
+  &__empty {
+    &:extend(.journal-empty all);
+  }
+
   @media (max-width: 768px) {
-    padding: 20px;
-
-    > * + * {
-      margin-top: 24px;
-    }
-
     &__top {
       flex-direction: column;
       align-items: stretch;
@@ -90,20 +72,14 @@
   }
 
   &__item {
+    &:extend(.journal-card all);
+
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
 
-    width: 100%;
-    box-sizing: border-box;
     padding: 16px 20px;
-    border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid #d7d1ea;
-    box-shadow:
-      3px 3px 10px rgba(0, 0, 0, 0.04),
-        -3px -3px 10px rgba(255, 255, 255, 0.9);
 
     text-decoration: none;
     color: inherit;
@@ -153,16 +129,7 @@
   }
 
   &__empty {
-    margin: 0;
-    padding: 20px;
-
-    border-radius: 20px;
-    background: #f8f6ff;
-    border: 1px solid #e4def7;
-
-    font: var(--tui-typography-body-m);
-    color: #5b517f;
-    text-align: center;
+    &:extend(.journal-empty all);
   }
 
   @media (max-width: 768px) {

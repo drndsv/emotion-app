@@ -9,18 +9,20 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { EmotionState } from '@emotion-app/shared';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import { catchError, filter, of, startWith, switchMap } from 'rxjs';
 
 import {
-  EmotionState,
   getEmotionEmoji,
   getEmotionLabel,
 } from '../../../core/constants/emotion-states';
+import { JOURNAL_MESSAGES } from '../../../core/constants/journal';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
 import { formatJournalDate } from '../../../core/utils/date-format.util';
+import { filterJournalEntries } from '../../../core/utils/journal-search.util';
 
 @Component({
   selector: 'app-journal-page',
@@ -45,20 +47,13 @@ export class JournalPageComponent {
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal('');
 
-  protected readonly filteredEntries = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
-    const entries = this.entries();
-
-    if (!query) {
-      return entries;
-    }
-
-    return entries.filter((entry) =>
-      `${entry.finalState} ${this.formatDate(entry)} ${entry.text}`
-        .toLowerCase()
-        .includes(query),
-    );
-  });
+  protected readonly filteredEntries = computed(() =>
+    filterJournalEntries(
+      this.entries(),
+      this.searchQuery(),
+      this.formatDate.bind(this),
+    ),
+  );
 
   constructor() {
     this.authService.currentUser$
@@ -67,7 +62,7 @@ export class JournalPageComponent {
         switchMap((user) =>
           this.journalService.getUserEntries(user.uid).pipe(
             catchError(() => {
-              this.errorMessage.set('Ошибка загрузки записей');
+              this.errorMessage.set(JOURNAL_MESSAGES.loadFailed);
 
               return of([]);
             }),

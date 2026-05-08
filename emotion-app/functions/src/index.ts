@@ -3,17 +3,23 @@ import { onCall } from 'firebase-functions/v2/https';
 
 import { FALLBACK_ANALYSIS_RESULT } from './emotion-analysis/constants/emotion-states';
 import { analyzeEmotionWithGigaChat } from './emotion-analysis/services/gigachat.service';
+import {
+  ANALYSIS_MESSAGES,
+  ANALYSIS_TEXT_MIN_LENGTH,
+  FUNCTIONS_MAX_INSTANCES,
+  FUNCTIONS_REGION,
+} from './emotion-analysis/constants/function-options';
 
 setGlobalOptions({
-  region: 'europe-west1',
-  maxInstances: 10,
+  region: FUNCTIONS_REGION,
+  maxInstances: FUNCTIONS_MAX_INSTANCES,
 });
 
 export const analyzeEmotion = onCall(async (request) => {
   const text = String(request.data.text ?? '').trim();
 
-  if (text.length < 3) {
-    throw new Error('Text is too short');
+  if (text.length < ANALYSIS_TEXT_MIN_LENGTH) {
+    throw new Error(ANALYSIS_MESSAGES.textTooShort);
   }
 
   try {

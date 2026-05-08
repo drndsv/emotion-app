@@ -6,6 +6,27 @@
 }
 
 .profile-page {
+  --profile-padding-desktop: 32px;
+  --profile-padding-mobile: 20px;
+  --profile-border-radius: 28px;
+
+  --profile-block-spacing-desktop: 32px;
+  --profile-block-spacing-mobile: 24px;
+
+  --profile-field-spacing: 16px;
+  --profile-field-label-width: 80px;
+
+  --profile-centered-height: 300px;
+
+  --profile-section-spacing-desktop: 40px;
+  --profile-section-spacing-mobile: 32px;
+
+  --profile-message-padding-vertical: 12px;
+  --profile-message-padding-horizontal: 16px;
+
+  --profile-section-padding-top: 24px;
+  --profile-section-form-spacing: 20px;
+
   display: flex;
   flex-direction: column;
 
@@ -13,15 +34,16 @@
   min-width: 0;
   box-sizing: border-box;
 
-  padding: 32px;
-  border-radius: 28px;
+  padding: var(--profile-padding-desktop);
+  border-radius: var(--profile-border-radius);
   background: #ffffff;
+
   box-shadow:
     6px 6px 18px rgba(0, 0, 0, 0.06),
       -6px -6px 18px rgba(255, 255, 255, 0.9);
 
   > * + * {
-    margin-top: 32px;
+    margin-top: var(--profile-block-spacing-desktop);
   }
 
   &__centered {
@@ -29,7 +51,7 @@
     align-items: center;
     justify-content: center;
 
-    min-height: 300px;
+    min-height: var(--profile-centered-height);
   }
 
   &__actions {
@@ -43,12 +65,15 @@
   }
 
   &__form > * + * {
-    margin-top: 16px;
+    margin-top: var(--profile-field-spacing);
   }
 
   &__field {
     display: grid;
-    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-columns:
+      var(--profile-field-label-width)
+      minmax(0, 1fr);
+
     align-items: center;
   }
 
@@ -64,7 +89,10 @@
 
   &__message {
     margin: 0;
-    padding: 12px 16px;
+
+    padding:
+      var(--profile-message-padding-vertical)
+      var(--profile-message-padding-horizontal);
 
     border-radius: 16px;
 
@@ -84,11 +112,11 @@
   }
 
   &__email {
-    margin-top: 40px;
+    margin-top: var(--profile-section-spacing-desktop);
   }
 
   &__password {
-    margin-top: 40px;
+    margin-top: var(--profile-section-spacing-desktop);
   }
 
   &__logout {
@@ -97,10 +125,10 @@
   }
 
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: var(--profile-padding-mobile);
 
     > * + * {
-      margin-top: 24px;
+      margin-top: var(--profile-block-spacing-mobile);
     }
 
     &__actions {
@@ -119,16 +147,24 @@
       margin-top: 8px;
     }
 
+    &__email {
+      margin-top: var(--profile-section-spacing-mobile);
+    }
+
+    &__password {
+      margin-top: var(--profile-section-spacing-mobile);
+    }
+
     &__logout {
       width: 100%;
-      margin-top: 32px;
+      margin-top: var(--profile-section-spacing-mobile);
     }
   }
 }
 
 .email-section,
 .password-section {
-  padding-top: 24px;
+  padding-top: var(--profile-section-padding-top);
   border-top: 1px solid #e4def7;
 
   &__header {
@@ -147,20 +183,21 @@
   &__form {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+
+    margin-top: var(--profile-section-form-spacing);
   }
 
   &__form > * + * {
-    margin-top: 16px;
+    margin-top: var(--profile-field-spacing);
   }
 
   &__submit {
     align-self: flex-end;
-    margin-top: 24px;
+    margin-top: var(--profile-section-padding-top);
   }
 
   &__readonly {
-    margin-top: 20px;
+    margin-top: var(--profile-section-form-spacing);
   }
 
   @media (max-width: 768px) {

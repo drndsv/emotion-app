@@ -5,6 +5,8 @@ import {
 import {
   GIGACHAT_AUTH_KEY,
   GIGACHAT_COMPLETIONS_URL,
+  GIGACHAT_CONTENT_LOG_PREFIX,
+  GIGACHAT_MESSAGES,
   GIGACHAT_MODEL,
   GIGACHAT_OAUTH_URL,
   GIGACHAT_SCOPE,
@@ -50,13 +52,13 @@ export async function analyzeEmotionWithGigaChat(
   });
 
   if (!response.ok) {
-    throw new Error('GigaChat request failed');
+    throw new Error(GIGACHAT_MESSAGES.requestFailed);
   }
 
   const data = (await response.json()) as GigaChatResponse;
   const content = data.choices?.[0]?.message?.content ?? '';
 
-  console.log('GigaChat content:', content);
+  console.log(GIGACHAT_CONTENT_LOG_PREFIX, content);
 
   const parsed = JSON.parse(content) as GigaChatEmotionJson;
   const emotion = String(parsed.emotion ?? '')
@@ -86,7 +88,7 @@ async function getAccessToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get GigaChat access token');
+    throw new Error(GIGACHAT_MESSAGES.tokenRequestFailed);
   }
 
   const data = (await response.json()) as GigaChatTokenResponse;

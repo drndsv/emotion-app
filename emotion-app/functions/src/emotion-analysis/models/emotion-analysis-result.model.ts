@@ -1,4 +1,4 @@
-export type EmotionState = 'joy' | 'calm' | 'neutral' | 'anxiety' | 'sadness';
+import { EmotionState } from '@emotion-app/shared';
 
 export interface EmotionAnalysisResult {
   detectedState: EmotionState;

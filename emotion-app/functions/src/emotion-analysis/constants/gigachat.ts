@@ -12,3 +12,10 @@ export const GIGACHAT_TEMPERATURE = 0.2;
 
 export const GIGACHAT_SYSTEM_PROMPT =
   'Ты AI-помощник для анализа эмоционального состояния пользователя. Отвечай только валидным JSON.';
+
+export const GIGACHAT_MESSAGES = {
+  requestFailed: 'GigaChat request failed',
+  tokenRequestFailed: 'Failed to get GigaChat access token',
+} as const;
+
+export const GIGACHAT_CONTENT_LOG_PREFIX = 'GigaChat content:';
