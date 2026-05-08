@@ -22,3 +22,15 @@ export const EMOTION_STATES = {
 } as const;
 
 export type EmotionState = keyof typeof EMOTION_STATES;
+
+export const EMOTION_STATE_ORDER: readonly EmotionState[] = [
+  'joy',
+  'calm',
+  'neutral',
+  'anxiety',
+  'sadness',
+];
+
+export const UNKNOWN_EMOTION_LABEL = 'Неизвестно';
+
+export const UNKNOWN_EMOTION_EMOJI = '📝';
