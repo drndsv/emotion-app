@@ -7,19 +7,24 @@ stages:
 default:
   image: node:22
 
+variables:
+  APP_DIR: emotion-app
+
 install:
   stage: install
   script:
+    - cd $APP_DIR
     - npm install
   artifacts:
     paths:
-      - node_modules/
+      - emotion-app/node_modules/
 
 lint:
   stage: validate
   dependencies:
     - install
   script:
+    - cd $APP_DIR
     - npm run lint
 
 test:
@@ -27,6 +32,7 @@ test:
   dependencies:
     - install
   script:
+    - cd $APP_DIR
     - npm run test
 
 build:
@@ -34,10 +40,11 @@ build:
   dependencies:
     - install
   script:
+    - cd $APP_DIR
     - npx nx build emotion-diary --base-href /$CI_PROJECT_NAME/
   artifacts:
     paths:
-      - dist/apps/emotion-diary/browser/
+      - emotion-app/dist/apps/emotion-diary/browser/
 
 pages:
   stage: deploy
@@ -46,7 +53,7 @@ pages:
   script:
     - rm -rf public
     - mkdir -p public
-    - cp -r dist/apps/emotion-diary/browser/* public/
+    - cp -r emotion-app/dist/apps/emotion-diary/browser/* public/
   artifacts:
     paths:
       - public
