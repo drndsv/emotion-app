@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'firebase',
-  preset: '../jest.preset.js',
+  preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../coverage/firebase',
+  coverageDirectory: '../../coverage/libs/firebase',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

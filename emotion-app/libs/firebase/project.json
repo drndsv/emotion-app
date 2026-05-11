@@ -1,7 +1,7 @@
 {
   "name": "firebase",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "firebase/src",
+  "sourceRoot": "libs/firebase/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
@@ -10,8 +10,8 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "firebase/jest.config.cts",
-        "tsConfig": "firebase/tsconfig.spec.json"
+        "jestConfig": "libs/firebase/jest.config.cts",
+        "tsConfig": "libs/firebase/tsconfig.spec.json"
       }
     },
     "lint": {
