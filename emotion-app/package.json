@@ -5,6 +5,10 @@
   "scripts": {
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
+    "test": "nx run-many --target=test --all",
+    "test:coverage": "nx run-many --target=test --all --coverage",
+    "build": "nx build emotion-diary",
+    "validate": "npm run lint && npm run test && npm run build",
     "format": "nx format:write",
     "format:check": "nx format:check"
   },
