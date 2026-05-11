@@ -6,6 +6,7 @@ import { analyzeEmotionWithGigaChat } from './emotion-analysis/services/gigachat
 import {
   ANALYSIS_MESSAGES,
   ANALYSIS_TEXT_MIN_LENGTH,
+  FUNCTIONS_ALLOWED_ORIGINS,
   FUNCTIONS_MAX_INSTANCES,
   FUNCTIONS_REGION,
 } from './emotion-analysis/constants/function-options';
@@ -15,18 +16,21 @@ setGlobalOptions({
   maxInstances: FUNCTIONS_MAX_INSTANCES,
 });
 
-export const analyzeEmotion = onCall(async (request) => {
-  const text = String(request.data.text ?? '').trim();
+export const analyzeEmotion = onCall(
+  { cors: FUNCTIONS_ALLOWED_ORIGINS },
+  async (request) => {
+    const text = String(request.data.text ?? '').trim();
 
-  if (text.length < ANALYSIS_TEXT_MIN_LENGTH) {
-    throw new Error(ANALYSIS_MESSAGES.textTooShort);
-  }
+    if (text.length < ANALYSIS_TEXT_MIN_LENGTH) {
+      throw new Error(ANALYSIS_MESSAGES.textTooShort);
+    }
 
-  try {
-    return await analyzeEmotionWithGigaChat(text);
-  } catch (error) {
-    console.error(error);
+    try {
+      return await analyzeEmotionWithGigaChat(text);
+    } catch (error) {
+      console.error(error);
 
-    return FALLBACK_ANALYSIS_RESULT;
-  }
-});
+      return FALLBACK_ANALYSIS_RESULT;
+    }
+  },
+);
