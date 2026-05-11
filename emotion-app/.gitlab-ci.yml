@@ -1,5 +1,5 @@
 image: node:22-alpine
-# ci/cd
+
 stages:
   - validate
   - build
@@ -11,9 +11,11 @@ cache:
       - package-lock.json
   paths:
     - node_modules/
+    - .nx/cache/
 
 before_script:
   - npm ci
+  - npx nx --version
 
 lint:
   stage: validate
@@ -23,7 +25,11 @@ lint:
 test:
   stage: validate
   script:
-    - npm run test
+    - npm run test:coverage
+  artifacts:
+    paths:
+      - coverage/
+    expire_in: 1 week
 
 build:
   stage: build
@@ -44,5 +50,6 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - homework
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "homework"'
