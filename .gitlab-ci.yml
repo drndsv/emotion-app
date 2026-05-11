@@ -41,7 +41,7 @@ build:
     - install
   script:
     - cd $APP_DIR
-    - npx nx build emotion-diary --base-href /$CI_PROJECT_NAME/
+    - npx nx build emotion-diary --base-href ./
   artifacts:
     paths:
       - emotion-app/dist/apps/emotion-diary/browser/
