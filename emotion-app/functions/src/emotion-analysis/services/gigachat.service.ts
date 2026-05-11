@@ -23,19 +23,22 @@ import {
 } from '../models/gigachat.model';
 import { createEmotionAnalysisPrompt } from '../prompts/emotion-analysis.prompt';
 import { isEmotionState, normalizeEmotion } from '../utils/emotion-normalizer';
+import { GIGACHAT_CA_CERTIFICATE } from '../constants/gigachat-certificate';
+import { Agent } from 'node:https';
+import axios from 'axios';
+
+const gigachatHttpsAgent = new Agent({
+  ca: GIGACHAT_CA_CERTIFICATE,
+});
 
 export async function analyzeEmotionWithGigaChat(
   text: string,
 ): Promise<EmotionAnalysisResult> {
   const accessToken = await getAccessToken();
 
-  const response = await fetch(GIGACHAT_COMPLETIONS_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  const response = await axios.post<GigaChatResponse>(
+    GIGACHAT_COMPLETIONS_URL,
+    {
       model: GIGACHAT_MODEL,
       temperature: GIGACHAT_TEMPERATURE,
       messages: [
@@ -48,19 +51,22 @@ export async function analyzeEmotionWithGigaChat(
           content: createEmotionAnalysisPrompt(text),
         },
       ],
-    }),
-  });
+    },
+    {
+      httpsAgent: gigachatHttpsAgent,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 
-  if (!response.ok) {
-    throw new Error(GIGACHAT_MESSAGES.requestFailed);
-  }
-
-  const data = (await response.json()) as GigaChatResponse;
-  const content = data.choices?.[0]?.message?.content ?? '';
+  const content = response.data.choices?.[0]?.message?.content ?? '';
 
   console.log(GIGACHAT_CONTENT_LOG_PREFIX, content);
 
   const parsed = JSON.parse(content) as GigaChatEmotionJson;
+
   const emotion = String(parsed.emotion ?? '')
     .trim()
     .toLowerCase();
@@ -75,23 +81,26 @@ export async function analyzeEmotionWithGigaChat(
 }
 
 async function getAccessToken(): Promise<string> {
-  const response = await fetch(GIGACHAT_OAUTH_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${GIGACHAT_AUTH_KEY}`,
-      RqUID: crypto.randomUUID(),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      scope: GIGACHAT_SCOPE,
-    }),
-  });
+  try {
+    const response = await axios.post<GigaChatTokenResponse>(
+      GIGACHAT_OAUTH_URL,
+      new URLSearchParams({
+        scope: GIGACHAT_SCOPE,
+      }),
+      {
+        httpsAgent: gigachatHttpsAgent,
+        headers: {
+          Authorization: `Basic ${GIGACHAT_AUTH_KEY}`,
+          RqUID: crypto.randomUUID(),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
+    );
 
-  if (!response.ok) {
+    return response.data.access_token;
+  } catch (error) {
+    console.error(error);
+
     throw new Error(GIGACHAT_MESSAGES.tokenRequestFailed);
   }
-
-  const data = (await response.json()) as GigaChatTokenResponse;
-
-  return data.access_token;
 }
