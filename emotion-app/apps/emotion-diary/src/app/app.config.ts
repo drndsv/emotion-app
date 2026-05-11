@@ -2,7 +2,7 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { provideTaiga } from '@taiga-ui/core';
 
 import { appRoutes } from './app.routes';
@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     VALIDATION_ERRORS_PROVIDER,
     provideBrowserGlobalErrorListeners(),
-    provideRouter(appRoutes),
+    provideRouter(appRoutes, withHashLocation()),
     provideTaiga(),
   ],
 };
