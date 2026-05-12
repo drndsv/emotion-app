@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EmotionState } from '@emotion-app/shared';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
+import { TuiPagination } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { catchError, filter, of, startWith, switchMap } from 'rxjs';
 
@@ -18,7 +19,12 @@ import {
   getEmotionEmoji,
   getEmotionLabel,
 } from '../../../core/constants/emotion-states';
-import { JOURNAL_MESSAGES } from '../../../core/constants/journal';
+import {
+  JOURNAL_INITIAL_PAGE,
+  JOURNAL_MESSAGES,
+  JOURNAL_MIN_PAGES_FOR_PAGINATION,
+  JOURNAL_PAGE_SIZE,
+} from '../../../core/constants/journal';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
@@ -38,6 +44,7 @@ import { filterJournalEntries } from '../../../core/utils/journal-search.util';
     ReactiveFormsModule,
     TuiLoader,
     TuiCardLarge,
+    TuiPagination,
   ],
   templateUrl: './journal-page.component.html',
   styleUrl: './journal-page.component.less',
@@ -47,6 +54,11 @@ export class JournalPageComponent {
   private readonly authService = inject(AuthService);
   private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly pageSize = JOURNAL_PAGE_SIZE;
+  protected readonly currentPage = signal(JOURNAL_INITIAL_PAGE);
+
+  protected readonly minPagesForPagination = JOURNAL_MIN_PAGES_FOR_PAGINATION;
 
   protected readonly searchControl = new FormControl('', { nonNullable: true });
 
@@ -67,8 +79,18 @@ export class JournalPageComponent {
     ),
   );
 
+  protected readonly totalPages = computed(() =>
+    Math.ceil(this.filteredEntries().length / this.pageSize),
+  );
+
+  protected readonly paginatedEntries = computed(() => {
+    const startIndex = this.currentPage() * this.pageSize;
+
+    return this.filteredEntries().slice(startIndex, startIndex + this.pageSize);
+  });
+
   protected readonly groupedEntries = computed(() =>
-    groupJournalEntriesByDate(this.filteredEntries()),
+    groupJournalEntriesByDate(this.paginatedEntries()),
   );
 
   constructor() {
