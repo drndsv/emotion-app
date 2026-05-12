@@ -81,5 +81,15 @@
         }
       </div>
     </section>
+
+    @if (totalPages() > minPagesForPagination) {
+      <div class="journal-page__pagination">
+        <tui-pagination
+          [index]="currentPage()"
+          [length]="totalPages()"
+          (indexChange)="currentPage.set($event)"
+        />
+      </div>
+    }
   }
 </section>
