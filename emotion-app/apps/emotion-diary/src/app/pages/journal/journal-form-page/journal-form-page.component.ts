@@ -32,8 +32,13 @@ import {
   JOURNAL_TEXT_MIN_LENGTH,
 } from '../../../core/constants/journal-form';
 import { AnalysisResult } from '../../../core/models/analysis-result.model';
+import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import {
+  formatJournalDate,
+  formatJournalTime,
+} from '../../../core/utils/date-format.util';
 
 @Component({
   selector: 'app-journal-form-page',
@@ -63,11 +68,15 @@ export class JournalFormPageComponent {
   protected readonly entryId = this.route.snapshot.paramMap.get(
     JOURNAL_ENTRY_ID_PARAM,
   );
+
   protected readonly isEditMode = this.entryId !== null;
+
   protected readonly textMinLength = JOURNAL_TEXT_MIN_LENGTH;
   protected readonly textMaxLength = JOURNAL_TEXT_MAX_LENGTH;
 
   protected readonly states = EMOTION_STATE_LABELS;
+
+  protected readonly entry = signal<JournalEntry | null>(null);
 
   protected readonly selectedStateControl = new FormControl('', {
     nonNullable: true,
@@ -117,13 +126,16 @@ export class JournalFormPageComponent {
       .subscribe({
         next: (result) => {
           this.isAnalyzing.set(false);
+
           this.analysisResult.set(result);
+
           this.finalStateControl.setValue(
             getEmotionLabel(result.detectedState),
           );
         },
         error: () => {
           this.isAnalyzing.set(false);
+
           this.analysisErrorMessage.set(JOURNAL_FORM_MESSAGES.analysisFailed);
         },
       });
@@ -133,6 +145,7 @@ export class JournalFormPageComponent {
     const selectedState = getEmotionStateByLabel(
       this.selectedStateControl.value,
     );
+
     const finalState = getEmotionStateByLabel(this.finalStateControl.value);
 
     if (this.textControl.invalid || selectedState === null) {
@@ -166,10 +179,12 @@ export class JournalFormPageComponent {
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isSaving.set(false);
+
         void this.router.navigate(['/journal']);
       },
       error: () => {
         this.isSaving.set(false);
+
         this.errorMessage.set(JOURNAL_FORM_MESSAGES.saveFailed);
       },
     });
@@ -177,6 +192,14 @@ export class JournalFormPageComponent {
 
   protected getStateLabel(state: EmotionState): string {
     return getEmotionLabel(state);
+  }
+
+  protected formatDate(entry: JournalEntry): string {
+    return formatJournalDate(entry.createdAt);
+  }
+
+  protected formatTime(entry: JournalEntry): string {
+    return formatJournalTime(entry.createdAt);
   }
 
   private loadEntryForEdit(): void {
@@ -203,10 +226,14 @@ export class JournalFormPageComponent {
           return;
         }
 
+        this.entry.set(entry);
+
         this.selectedStateControl.setValue(
           getEmotionLabel(entry.selectedState),
         );
+
         this.textControl.setValue(entry.text);
+
         this.finalStateControl.setValue(getEmotionLabel(entry.finalState));
 
         if (entry.detectedState && entry.analysis && entry.recommendation) {
