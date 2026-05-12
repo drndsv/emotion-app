@@ -3,6 +3,7 @@ import { getFirestoreInstance } from '@emotion-app/firebase';
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -84,5 +85,11 @@ export class JournalService {
         updatedAt: serverTimestamp(),
       }),
     );
+  }
+
+  deleteEntry(id: string): Observable<void> {
+    const entryRef = doc(this.firestore, this.collectionName, id);
+
+    return from(deleteDoc(entryRef));
   }
 }

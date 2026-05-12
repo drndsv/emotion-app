@@ -6,13 +6,22 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EmotionState } from '@emotion-app/shared';
-import { TuiButton, TuiLoader } from '@taiga-ui/core';
-import { catchError, filter, map, of, switchMap } from 'rxjs';
+import {
+  TuiButton,
+  TuiDialogService,
+  TuiLoader,
+  TuiNotificationService,
+} from '@taiga-ui/core';
+import { TUI_CONFIRM, TuiConfirmData } from '@taiga-ui/kit';
+import { catchError, EMPTY, filter, map, of, switchMap } from 'rxjs';
 
 import { getEmotionLabel } from '../../../core/constants/emotion-states';
-import { JOURNAL_MESSAGES } from '../../../core/constants/journal';
+import {
+  JOURNAL_DETAILS_DIALOG_SIZE,
+  JOURNAL_MESSAGES,
+} from '../../../core/constants/journal';
 import { JOURNAL_ENTRY_ID_PARAM } from '../../../core/constants/journal-form';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
@@ -27,13 +36,17 @@ import { formatJournalDate } from '../../../core/utils/date-format.util';
 })
 export class JournalDetailsPageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly journalService = inject(JournalService);
+  private readonly dialogs = inject(TuiDialogService);
+  private readonly notifications = inject(TuiNotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly notFoundMessage = JOURNAL_MESSAGES.notFound;
 
   protected readonly entry = signal<JournalEntry | null>(null);
   protected readonly isLoading = signal(true);
+  protected readonly isDeleting = signal(false);
   protected readonly isNotFound = signal(false);
   protected readonly errorMessage = signal('');
 
@@ -67,6 +80,53 @@ export class JournalDetailsPageComponent {
         }
 
         this.entry.set(entry);
+      });
+  }
+
+  protected deleteEntry(): void {
+    const currentEntry = this.entry();
+
+    if (currentEntry === null) {
+      return;
+    }
+
+    const data: TuiConfirmData = {
+      content: JOURNAL_MESSAGES.deleteConfirmContent,
+      yes: JOURNAL_MESSAGES.deleteConfirmYes,
+      no: JOURNAL_MESSAGES.deleteConfirmNo,
+    };
+
+    this.dialogs
+      .open<boolean>(TUI_CONFIRM, {
+        label: JOURNAL_MESSAGES.deleteConfirmTitle,
+        size: JOURNAL_DETAILS_DIALOG_SIZE,
+        data,
+      })
+      .pipe(
+        switchMap((confirmed) => {
+          if (!confirmed) {
+            return EMPTY;
+          }
+
+          this.isDeleting.set(true);
+
+          return this.journalService.deleteEntry(currentEntry.id);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.isDeleting.set(false);
+
+          this.notifications.open(JOURNAL_MESSAGES.deleteSuccess).subscribe();
+
+          void this.router.navigate(['/journal']);
+        },
+        error: () => {
+          this.isDeleting.set(false);
+
+          this.notifications.open(JOURNAL_MESSAGES.deleteFailed).subscribe();
+        },
       });
   }
 
