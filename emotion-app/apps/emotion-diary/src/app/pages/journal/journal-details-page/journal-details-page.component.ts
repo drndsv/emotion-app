@@ -25,7 +25,10 @@ import {
 import { JOURNAL_ENTRY_ID_PARAM } from '../../../core/constants/journal-form';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
-import { formatJournalDate } from '../../../core/utils/date-format.util';
+import {
+  formatJournalDate,
+  formatJournalTime,
+} from '../../../core/utils/date-format.util';
 
 @Component({
   selector: 'app-journal-details-page',
@@ -136,5 +139,9 @@ export class JournalDetailsPageComponent {
 
   protected formatDate(entry: JournalEntry): string {
     return formatJournalDate(entry.createdAt);
+  }
+
+  protected formatTime(entry: JournalEntry): string {
+    return formatJournalTime(entry.createdAt);
   }
 }

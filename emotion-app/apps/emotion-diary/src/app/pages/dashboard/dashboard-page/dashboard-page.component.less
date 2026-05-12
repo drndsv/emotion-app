@@ -1,3 +1,5 @@
+@import '../../journal/styles/journal-shared';
+
 :host {
   display: block;
   width: 100%;
@@ -367,53 +369,51 @@
     color: #2f2550;
   }
 
-  &__list {
+  &__groups {
     display: flex;
     flex-direction: column;
+    gap: 24px;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__date-title {
+    margin: 0;
+
+    font: var(--tui-typography-heading-h6);
+    color: #3f3566;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
   }
 
-  &__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+  &__card {
+    &:extend(.journal-entry-card all);
 
-    width: 100%;
-    box-sizing: border-box;
-    padding: 16px 20px;
-    border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid #d7d1ea;
-    box-shadow:
-      3px 3px 10px rgba(0, 0, 0, 0.04),
-        -3px -3px 10px rgba(255, 255, 255, 0.9);
-
-    text-decoration: none;
-    color: inherit;
-
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        6px 6px 14px rgba(0, 0, 0, 0.06),
-          -4px -4px 10px rgba(255, 255, 255, 0.9);
-    }
+    min-height: 140px;
   }
 
-  &__meta {
+  &__card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+  }
 
-    min-width: 280px;
+  &__card-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   &__emoji {
-    font-size: 20px;
+    font-size: 22px;
     line-height: 1;
   }
 
@@ -423,32 +423,38 @@
     color: #3f3566;
   }
 
-  &__date {
-    font: var(--tui-typography-body-m);
-    color: #5b517f;
+  &__time {
+    margin-top: 2px;
+
+    font: var(--tui-typography-ui-s);
+    color: #8c84aa;
   }
 
   &__preview {
-    flex: 1;
+    display: -webkit-box;
+    margin: 12px 0 0;
+
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 
     font: var(--tui-typography-body-m);
     color: #4b3f73;
-    text-align: right;
   }
 
-  @media (max-width: 768px) {
-    &__item {
-      flex-direction: column;
-      align-items: flex-start;
+  @media (max-width: 1024px) {
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    &__grid {
+      grid-template-columns: 1fr;
     }
 
-    &__meta {
-      min-width: auto;
-      flex-wrap: wrap;
-    }
-
-    &__preview {
-      text-align: left;
+    &__card {
+      min-height: auto;
     }
   }
 }
