@@ -94,6 +94,7 @@
                         [class.emotion-heatmap__cell_neutral]="cell.state === 'neutral'"
                         [class.emotion-heatmap__cell_anxiety]="cell.state === 'anxiety'"
                         [class.emotion-heatmap__cell_sadness]="cell.state === 'sadness'"
+                        [class.emotion-heatmap__cell_anger]="cell.state === 'anger'"
                         [routerLink]="cell.entry ? ['/journal', cell.entry.id] : null"
                         [attr.title]="getHeatmapCellLabel(cell)"
                       >
@@ -119,6 +120,7 @@
                 [class.emotion-legend__item_neutral]="state === 'neutral'"
                 [class.emotion-legend__item_anxiety]="state === 'anxiety'"
                 [class.emotion-legend__item_sadness]="state === 'sadness'"
+                [class.emotion-legend__item_anger]="state === 'anger'"
               >
                 {{ getStateLabel(state) }}
               </span>
