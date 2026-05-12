@@ -8,6 +8,22 @@
       {{ isEditMode ? 'Редактирование записи' : 'Новая запись' }}
     </h1>
 
+    @if (isEditMode && entry(); as entry) {
+      <div class="journal-form-page__meta">
+    <span class="journal-form-page__meta-item">
+      {{ formatDate(entry) }}
+    </span>
+
+        <span class="journal-form-page__meta-divider">
+      •
+    </span>
+
+        <span class="journal-form-page__meta-item">
+      {{ formatTime(entry) }}
+    </span>
+      </div>
+    }
+
     @if (errorMessage()) {
       <p class="journal-form-page__error">
         {{ errorMessage() }}

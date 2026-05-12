@@ -1,6 +1,6 @@
 export const DASHBOARD_DEFAULT_USER_NAME = 'Пользователь';
 
-export const DASHBOARD_RECENT_ENTRIES_LIMIT = 5;
+export const DASHBOARD_RECENT_ENTRIES_LIMIT = 6;
 
 export const DASHBOARD_DATE_LOCALE = 'ru-RU';
 

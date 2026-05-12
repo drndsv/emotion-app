@@ -37,30 +37,43 @@
     <section class="journal-page__list journal-list">
       <h2 class="journal-list__title">Мои записи</h2>
 
-      <div class="journal-list__items">
-        @for (entry of filteredEntries(); track entry.id) {
-          <a
-            [routerLink]="['/journal', entry.id]"
-            class="journal-list__item"
-          >
-            <div class="journal-list__meta">
-              <span class="journal-list__emoji">
-                {{ getStateEmoji(entry.finalState) }}
-              </span>
+      <div class="journal-list__groups">
+        @for (group of groupedEntries(); track group.date) {
+          <section class="journal-list__group">
+            <h3 class="journal-list__date-title">
+              {{ group.date }}
+            </h3>
 
-              <span class="journal-list__state">
-                {{ getStateLabel(entry.finalState) }}
-              </span>
+            <div class="journal-list__grid">
+              @for (entry of group.entries; track entry.id) {
+                <a
+                  tuiCardLarge
+                  [routerLink]="['/journal', entry.id]"
+                  class="journal-list__card"
+                >
+                  <div class="journal-list__card-header">
+                    <span class="journal-list__emoji">
+                      {{ getStateEmoji(entry.finalState) }}
+                    </span>
 
-              <span class="journal-list__date">
-                {{ formatDate(entry) }}
-              </span>
+                    <div class="journal-list__card-info">
+                      <span class="journal-list__state">
+                        {{ getStateLabel(entry.finalState) }}
+                      </span>
+
+                      <span class="journal-list__time">
+                        {{ formatTime(entry) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="journal-list__preview">
+                    {{ entry.text }}
+                  </p>
+                </a>
+              }
             </div>
-
-            <span class="journal-list__preview">
-              {{ entry.text }}
-            </span>
-          </a>
+          </section>
         } @empty {
           <p class="journal-list__empty">
             Записей пока нет

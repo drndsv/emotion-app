@@ -45,6 +45,11 @@
           </div>
 
           <div class="journal-details-page__meta-row">
+            <dt>Время:</dt>
+            <dd>{{ formatTime(entry) }}</dd>
+          </div>
+
+          <div class="journal-details-page__meta-row">
             <dt>Выбранное состояние:</dt>
             <dd>{{ getStateLabel(entry.selectedState) }}</dd>
           </div>

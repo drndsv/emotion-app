@@ -158,30 +158,43 @@
           Последние записи
         </h2>
 
-        <div class="recent-entries__list">
-          @for (entry of recentEntries(); track entry.id) {
-            <a
-              [routerLink]="['/journal', entry.id]"
-              class="recent-entries__item"
-            >
-              <div class="recent-entries__meta">
-                <span class="recent-entries__emoji">
-                  {{ getStateEmoji(entry.finalState) }}
-                </span>
+        <div class="recent-entries__groups">
+          @for (group of groupedRecentEntries(); track group.date) {
+            <section class="recent-entries__group">
+              <h3 class="recent-entries__date-title">
+                {{ group.date }}
+              </h3>
 
-                <span class="recent-entries__state">
-                  {{ getStateLabel(entry.finalState) }}
-                </span>
+              <div class="recent-entries__grid">
+                @for (entry of group.entries; track entry.id) {
+                  <a
+                    tuiCardLarge
+                    [routerLink]="['/journal', entry.id]"
+                    class="recent-entries__card"
+                  >
+                    <div class="recent-entries__card-header">
+                      <span class="recent-entries__emoji">
+                        {{ getStateEmoji(entry.finalState) }}
+                      </span>
 
-                <span class="recent-entries__date">
-                  {{ formatDate(entry) }}
-                </span>
+                      <div class="recent-entries__card-info">
+                        <span class="recent-entries__state">
+                          {{ getStateLabel(entry.finalState) }}
+                        </span>
+
+                        <span class="recent-entries__time">
+                          {{ formatTime(entry) }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p class="recent-entries__preview">
+                      {{ entry.text }}
+                    </p>
+                  </a>
+                }
               </div>
-
-              <span class="recent-entries__preview">
-                {{ entry.text }}
-              </span>
-            </a>
+            </section>
           }
         </div>
       </section>
