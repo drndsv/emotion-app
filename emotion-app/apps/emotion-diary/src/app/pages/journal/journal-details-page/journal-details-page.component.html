@@ -61,15 +61,33 @@
         </dl>
       </div>
 
-      <a
-        [routerLink]="['/journal', entry.id, 'edit']"
-        tuiButton
-        appearance="outline"
-        size="m"
-        class="journal-details-page__edit"
-      >
-        Изменить запись
-      </a>
+      <div class="journal-details-page__actions">
+        <a
+          [routerLink]="['/journal', entry.id, 'edit']"
+          tuiButton
+          appearance="outline"
+          size="m"
+          class="journal-details-page__edit"
+        >
+          Изменить запись
+        </a>
+
+        <button
+          tuiButton
+          appearance="outline"
+          size="m"
+          type="button"
+          class="journal-details-page__delete"
+          [disabled]="isDeleting()"
+          (click)="deleteEntry()"
+        >
+          @if (isDeleting()) {
+            Удаление...
+          } @else {
+            Удалить
+          }
+        </button>
+      </div>
     </div>
 
     <section class="journal-details-page__section details-section">
