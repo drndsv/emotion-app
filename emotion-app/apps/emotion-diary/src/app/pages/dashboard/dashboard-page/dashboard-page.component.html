@@ -96,7 +96,7 @@
                         [class.emotion-heatmap__cell_sadness]="cell.state === 'sadness'"
                         [class.emotion-heatmap__cell_anger]="cell.state === 'anger'"
                         [routerLink]="cell.entry ? ['/journal', cell.entry.id] : null"
-                        [attr.title]="getHeatmapCellLabel(cell)"
+                        [tuiHint]="getHeatmapCellLabel(cell)"
                       >
                         @if (cell.count > 1) {
                           <span class="emotion-heatmap__count">

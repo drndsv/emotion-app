@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { EmotionState } from '@emotion-app/shared';
 import { TuiRingChart } from '@taiga-ui/addon-charts';
-import { TuiButton, TuiLoader } from '@taiga-ui/core';
+import { TuiButton, TuiHint, TuiLoader } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { catchError, filter, of, switchMap } from 'rxjs';
 
@@ -41,16 +41,20 @@ import {
   getNextMonth,
   getPreviousMonth,
 } from '../../../core/utils/dashboard-date.util';
-import {
-  formatJournalDate,
-  formatJournalTime,
-} from '../../../core/utils/date-format.util';
+import { formatJournalTime } from '../../../core/utils/date-format.util';
 import { groupJournalEntriesByDate } from '../../../core/utils/group-journal-entries.util';
 import { buildHeatmapCells } from '../../../core/utils/heatmap.util';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [RouterLink, TuiButton, TuiRingChart, TuiLoader, TuiCardLarge],
+  imports: [
+    RouterLink,
+    TuiButton,
+    TuiRingChart,
+    TuiLoader,
+    TuiCardLarge,
+    TuiHint,
+  ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,10 +75,6 @@ export class DashboardPageComponent {
 
   protected readonly dayPeriods = DAY_PERIODS;
   protected readonly emotionStateOrder = EMOTION_STATE_ORDER;
-
-  protected readonly recentEntries = computed(() =>
-    this.entries().slice(0, DASHBOARD_RECENT_ENTRIES_LIMIT),
-  );
 
   protected readonly groupedRecentEntries = computed(() =>
     groupJournalEntriesByDate(
@@ -194,10 +194,6 @@ export class DashboardPageComponent {
 
   protected getStateLabel(state: EmotionState): string {
     return getEmotionLabel(state);
-  }
-
-  protected formatDate(entry: JournalEntry): string {
-    return formatJournalDate(entry.createdAt);
   }
 
   protected formatTime(entry: JournalEntry): string {

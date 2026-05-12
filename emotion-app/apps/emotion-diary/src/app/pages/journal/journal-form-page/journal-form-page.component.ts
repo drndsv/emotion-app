@@ -10,7 +10,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EmotionAnalysisService } from '@emotion-app/emotion-analysis';
 import { EmotionState } from '@emotion-app/shared';
-import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
+import { TuiButton, TuiHint, TuiInput, TuiLoader } from '@taiga-ui/core';
 import {
   TuiChevron,
   TuiDataListWrapper,
@@ -52,6 +52,7 @@ import {
     TuiTextarea,
     RouterLink,
     TuiLoader,
+    TuiHint,
   ],
   templateUrl: './journal-form-page.component.html',
   styleUrl: './journal-form-page.component.less',
