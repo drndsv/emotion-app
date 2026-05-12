@@ -8,6 +8,7 @@
   --tui-chart-categorical-02: #c8cde0;
   --tui-chart-categorical-03: #f5aa64;
   --tui-chart-categorical-04: #9db9ee;
+  --tui-chart-categorical-05: #ef7d7d;
 }
 
 .dashboard-page {
@@ -250,6 +251,11 @@
       background: #9db9ee;
       border-color: #7f9fdd;
     }
+
+    &_anger {
+      background: #ef7d7d;
+      border-color: #d95f5f;
+    }
   }
 
   &__count {
@@ -320,7 +326,12 @@
 
     &_sadness::before {
       background: #9db9ee;
-      border-color: #7f9d;
+      border-color: #528adb;
+    }
+
+    &_anger::before {
+      background: #ef7d7d;
+      border-color: #d95f5f;
     }
   }
 }
