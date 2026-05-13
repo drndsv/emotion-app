@@ -20,6 +20,16 @@
       >
         Дневник
       </a>
+
+      @if (isAdmin()) {
+        <a
+          routerLink="/monitoring"
+          routerLinkActive="app-header__link_active"
+          class="app-header__link"
+        >
+          Мониторинг
+        </a>
+      }
     </nav>
 
     <a
