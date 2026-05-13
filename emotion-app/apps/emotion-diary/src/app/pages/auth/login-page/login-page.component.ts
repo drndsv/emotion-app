@@ -17,7 +17,9 @@ import { TuiButton, TuiError, TuiInput } from '@taiga-ui/core';
 import { TuiForm } from '@taiga-ui/layout';
 
 import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 
 @Component({
@@ -36,6 +38,7 @@ import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 })
 export class LoginPageComponent {
   private readonly authService = inject(AuthService);
+  private readonly loggerService = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -74,11 +77,21 @@ export class LoginPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          void this.router.navigate(['/dashboard']);
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.authLoginSuccess, { email })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              void this.router.navigate(['/dashboard']);
+            });
         },
         error: (error: { code?: string }) => {
           this.isLoading.set(false);
           this.errorMessage.set(getAuthErrorMessage(error));
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.authLoginFailed, error, { email })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }

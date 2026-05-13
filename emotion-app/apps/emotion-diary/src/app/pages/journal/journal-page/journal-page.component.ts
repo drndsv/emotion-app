@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -25,9 +26,11 @@ import {
   JOURNAL_MIN_PAGES_FOR_PAGINATION,
   JOURNAL_PAGE_SIZE,
 } from '../../../core/constants/journal';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   formatJournalDate,
   formatJournalTime,
@@ -50,9 +53,10 @@ import { filterJournalEntries } from '../../../core/utils/journal-search.util';
   styleUrl: './journal-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class JournalPageComponent {
+export class JournalPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly journalService = inject(JournalService);
+  private readonly loggerService = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly pageSize = JOURNAL_PAGE_SIZE;
@@ -93,14 +97,19 @@ export class JournalPageComponent {
     groupJournalEntriesByDate(this.paginatedEntries()),
   );
 
-  constructor() {
+  ngOnInit(): void {
     this.authService.currentUser$
       .pipe(
         filter((user) => user !== null && user !== undefined),
         switchMap((user) =>
           this.journalService.getUserEntries(user.uid).pipe(
-            catchError(() => {
+            catchError((error: unknown) => {
               this.errorMessage.set(JOURNAL_MESSAGES.loadFailed);
+
+              this.loggerService
+                .logError(LOGGER_EVENTS.journalEntriesLoadFailed, error)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe();
 
               return of([]);
             }),

@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,8 +13,10 @@ import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
 import { filter } from 'rxjs';
 
 import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { PROFILE_MESSAGES } from '../../../core/constants/profile';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoggerService } from '../../../core/services/logger.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -22,8 +25,9 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './profile-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfilePageComponent {
+export class ProfilePageComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly loggerService = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -75,7 +79,7 @@ export class ProfilePageComponent {
     ],
   });
 
-  constructor() {
+  ngOnInit(): void {
     this.authService.currentUser$
       .pipe(
         filter((user) => user !== undefined),
@@ -126,10 +130,20 @@ export class ProfilePageComponent {
           this.isSaving.set(false);
           this.isEditMode.set(false);
           this.successMessage.set(PROFILE_MESSAGES.profileSaved);
+
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.profileUpdated)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isSaving.set(false);
           this.errorMessage.set(PROFILE_MESSAGES.profileSaveFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.profileUpdateFailed, error)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }
@@ -162,10 +176,20 @@ export class ProfilePageComponent {
           this.newEmailControl.reset();
           this.emailPasswordControl.reset();
           this.successMessage.set(PROFILE_MESSAGES.emailConfirmationSent);
+
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.emailChanged)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isChangingEmail.set(false);
           this.errorMessage.set(PROFILE_MESSAGES.emailChangeFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.emailChangeFailed, error)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }
@@ -196,10 +220,20 @@ export class ProfilePageComponent {
           this.currentPasswordControl.reset();
           this.newPasswordControl.reset();
           this.successMessage.set(PROFILE_MESSAGES.passwordChanged);
+
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.passwordChanged)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isChangingPassword.set(false);
           this.errorMessage.set(PROFILE_MESSAGES.passwordChangeFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.passwordChangeFailed, error)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }
@@ -214,11 +248,22 @@ export class ProfilePageComponent {
       .subscribe({
         next: () => {
           this.isLogoutLoading.set(false);
-          void this.router.navigate(['/login']);
+
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.authLogoutSuccess)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              void this.router.navigate(['/login']);
+            });
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isLogoutLoading.set(false);
           this.errorMessage.set(PROFILE_MESSAGES.logoutFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.authLogoutFailed, error)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }

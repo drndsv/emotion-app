@@ -6,6 +6,10 @@ jest.mock('../../../core/services/journal.service', () => ({
   JournalService: class JournalService {},
 }));
 
+jest.mock('../../../core/services/logger.service', () => ({
+  LoggerService: class LoggerService {},
+}));
+
 import { TestBed } from '@angular/core/testing';
 import { Timestamp } from 'firebase/firestore';
 import { BehaviorSubject, of, throwError } from 'rxjs';
@@ -20,9 +24,11 @@ import {
   JOURNAL_MIN_PAGES_FOR_PAGINATION,
   JOURNAL_PAGE_SIZE,
 } from '../../../core/constants/journal';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 
 import { JournalPageComponent } from './journal-page.component';
 
@@ -84,6 +90,11 @@ function setup(
     ),
   };
 
+  const loggerService = {
+    logError: jest.fn(() => of(null)),
+    logEvent: jest.fn(() => of(null)),
+  };
+
   TestBed.resetTestingModule();
 
   TestBed.configureTestingModule({
@@ -96,6 +107,10 @@ function setup(
         provide: JournalService,
         useValue: journalService,
       },
+      {
+        provide: LoggerService,
+        useValue: loggerService,
+      },
     ],
   });
 
@@ -103,8 +118,11 @@ function setup(
     () => new JournalPageComponent(),
   );
 
+  (component as unknown as { ngOnInit: () => void }).ngOnInit();
+
   return {
     component: component as unknown as {
+      ngOnInit: () => void;
       pageSize: number;
       currentPage: {
         (): number;
@@ -132,6 +150,7 @@ function setup(
     },
     authService,
     journalService,
+    loggerService,
     currentUser$,
     entries,
   };
@@ -217,6 +236,17 @@ describe('JournalPageComponent', () => {
       });
 
       expect(component.isLoading()).toBe(false);
+    });
+
+    it('should log error when entries loading fails', () => {
+      const { loggerService } = setup({
+        loadError: true,
+      });
+
+      expect(loggerService.logError).toHaveBeenCalledWith(
+        LOGGER_EVENTS.journalEntriesLoadFailed,
+        expect.any(Error),
+      );
     });
   });
 
