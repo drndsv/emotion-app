@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -31,10 +32,12 @@ import {
   JOURNAL_TEXT_MAX_LENGTH,
   JOURNAL_TEXT_MIN_LENGTH,
 } from '../../../core/constants/journal-form';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { AnalysisResult } from '../../../core/models/analysis-result.model';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   formatJournalDate,
   formatJournalTime,
@@ -58,12 +61,13 @@ import {
   styleUrl: './journal-form-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class JournalFormPageComponent {
+export class JournalFormPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly journalService = inject(JournalService);
   private readonly authService = inject(AuthService);
   private readonly emotionAnalysisService = inject(EmotionAnalysisService);
+  private readonly loggerService = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly entryId = this.route.snapshot.paramMap.get(
@@ -105,7 +109,7 @@ export class JournalFormPageComponent {
   protected readonly errorMessage = signal('');
   protected readonly analysisErrorMessage = signal('');
 
-  constructor() {
+  ngOnInit(): void {
     this.loadEntryForEdit();
   }
 
@@ -121,6 +125,11 @@ export class JournalFormPageComponent {
     this.errorMessage.set('');
     this.analysisErrorMessage.set('');
 
+    this.loggerService
+      .logEvent(LOGGER_EVENTS.aiAnalysisStarted)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
     this.emotionAnalysisService
       .analyze(this.textControl.value)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -133,11 +142,23 @@ export class JournalFormPageComponent {
           this.finalStateControl.setValue(
             getEmotionLabel(result.detectedState),
           );
+
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.aiAnalysisSuccess, {
+              detectedState: result.detectedState,
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isAnalyzing.set(false);
 
           this.analysisErrorMessage.set(JOURNAL_FORM_MESSAGES.analysisFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.aiAnalysisFailed, error)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }
@@ -181,12 +202,31 @@ export class JournalFormPageComponent {
       next: () => {
         this.isSaving.set(false);
 
-        void this.router.navigate(['/journal']);
+        this.loggerService
+          .logEvent(
+            this.isEditMode
+              ? LOGGER_EVENTS.journalEntryUpdated
+              : LOGGER_EVENTS.journalEntryCreated,
+          )
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            void this.router.navigate(['/journal']);
+          });
       },
-      error: () => {
+      error: (error: unknown) => {
         this.isSaving.set(false);
 
         this.errorMessage.set(JOURNAL_FORM_MESSAGES.saveFailed);
+
+        this.loggerService
+          .logError(
+            this.isEditMode
+              ? LOGGER_EVENTS.journalEntryUpdateFailed
+              : LOGGER_EVENTS.journalEntryCreateFailed,
+            error,
+          )
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
     });
   }
@@ -213,8 +253,15 @@ export class JournalFormPageComponent {
     this.journalService
       .getEntryById(this.entryId)
       .pipe(
-        catchError(() => {
+        catchError((error: unknown) => {
           this.errorMessage.set(JOURNAL_FORM_MESSAGES.loadFailed);
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.journalEntryLoadFailed, error, {
+              entryId: this.entryId,
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
 
           return of(null);
         }),

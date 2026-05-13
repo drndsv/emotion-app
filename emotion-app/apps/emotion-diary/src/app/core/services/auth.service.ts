@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getFirebaseAuth } from '@emotion-app/firebase';
+import { getFirebaseAuth, getFirestoreInstance } from '@emotion-app/firebase';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -13,13 +13,18 @@ import {
   type User,
   type UserCredential,
 } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { BehaviorSubject, from, map, Observable, switchMap } from 'rxjs';
+
+import { USERS_COLLECTION } from '../constants/users';
+import { DEFAULT_USER_ROLE } from '../models/user-role.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly firebaseAuth = getFirebaseAuth();
+  private readonly firestore = getFirestoreInstance();
 
   private readonly currentUserSubject = new BehaviorSubject<
     User | null | undefined
@@ -53,6 +58,16 @@ export class AuthService {
         from(
           updateProfile(credential.user, {
             displayName: name,
+          }),
+        ).pipe(map(() => credential)),
+      ),
+      switchMap((credential) =>
+        from(
+          setDoc(doc(this.firestore, USERS_COLLECTION, credential.user.uid), {
+            uid: credential.user.uid,
+            email: credential.user.email,
+            displayName: name,
+            role: DEFAULT_USER_ROLE,
           }),
         ).pipe(map(() => credential)),
       ),

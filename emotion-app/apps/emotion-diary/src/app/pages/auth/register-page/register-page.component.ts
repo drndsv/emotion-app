@@ -20,7 +20,9 @@ import {
   AUTH_NAME_MIN_LENGTH,
   AUTH_PASSWORD_MIN_LENGTH,
 } from '../../../core/constants/auth';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 
 @Component({
@@ -39,6 +41,7 @@ import { getAuthErrorMessage } from '../../../core/utils/auth-error.util';
 })
 export class RegisterPageComponent {
   private readonly authService = inject(AuthService);
+  private readonly loggerService = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -84,11 +87,21 @@ export class RegisterPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          void this.router.navigate(['/dashboard']);
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.authRegistrationSuccess, { email })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              void this.router.navigate(['/dashboard']);
+            });
         },
         error: (error: { code?: string }) => {
           this.isLoading.set(false);
           this.errorMessage.set(getAuthErrorMessage(error));
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.authRegistrationFailed, error, { email })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }
