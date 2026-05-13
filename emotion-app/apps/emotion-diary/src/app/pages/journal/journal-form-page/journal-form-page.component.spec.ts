@@ -136,8 +136,11 @@ function setup(
     () => new JournalFormPageComponent(),
   );
 
+  (component as unknown as { ngOnInit: () => void }).ngOnInit();
+
   return {
     component: component as unknown as {
+      ngOnInit: () => void;
       entryId: string | null;
       isEditMode: boolean;
       textMinLength: number;
