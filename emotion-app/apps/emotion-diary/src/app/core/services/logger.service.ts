@@ -21,12 +21,13 @@ export class LoggerService {
   ): Observable<unknown> {
     return this.saveLog({
       type: 'event',
+      level: 'info',
       name,
       userId: this.authService.currentUser?.uid ?? null,
       details,
     }).pipe(
       tap(() => {
-        console.log(LOGGER_MESSAGES.eventSaved, name, details);
+        console.log(`[INFO] ${LOGGER_MESSAGES.eventSaved}`, name, details);
       }),
     );
   }
@@ -40,13 +41,19 @@ export class LoggerService {
 
     return this.saveLog({
       type: 'error',
+      level: 'error',
       name,
       userId: this.authService.currentUser?.uid ?? null,
       message,
       details,
     }).pipe(
       tap(() => {
-        console.error(LOGGER_MESSAGES.errorSaved, name, message, details);
+        console.error(
+          `[ERROR] ${LOGGER_MESSAGES.errorSaved}`,
+          name,
+          message,
+          details,
+        );
       }),
     );
   }
@@ -54,6 +61,7 @@ export class LoggerService {
   private saveLog(log: AppLog): Observable<unknown> {
     const logData = {
       type: log.type,
+      level: log.level,
       name: log.name,
       userId: log.userId,
       ...(log.message ? { message: log.message } : {}),
@@ -65,7 +73,7 @@ export class LoggerService {
       addDoc(collection(this.firestore, APP_LOGS_COLLECTION), logData),
     ).pipe(
       catchError((error: unknown) => {
-        console.error(LOGGER_MESSAGES.saveFailed, error);
+        console.error('[ERROR]', LOGGER_MESSAGES.saveFailed, error);
 
         return of(null);
       }),

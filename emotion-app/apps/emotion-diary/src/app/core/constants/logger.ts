@@ -20,4 +20,22 @@ export const LOGGER_EVENTS = {
   journalEntryUpdateFailed: 'journal_entry_update_failed',
   journalEntryDeleteFailed: 'journal_entry_delete_failed',
   journalEntriesLoadFailed: 'journal_entries_load_failed',
+
+  authLoginSuccess: 'auth_login_success',
+  authLoginFailed: 'auth_login_failed',
+
+  authRegistrationSuccess: 'auth_registration_success',
+  authRegistrationFailed: 'auth_registration_failed',
+
+  authLogoutSuccess: 'auth_logout_success',
+  authLogoutFailed: 'auth_logout_failed',
+
+  profileUpdated: 'profile_updated',
+  profileUpdateFailed: 'profile_update_failed',
+
+  emailChanged: 'email_changed',
+  emailChangeFailed: 'email_change_failed',
+
+  passwordChanged: 'password_changed',
+  passwordChangeFailed: 'password_change_failed',
 } as const;
