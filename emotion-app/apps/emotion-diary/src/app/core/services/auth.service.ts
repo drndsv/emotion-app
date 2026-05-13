@@ -16,7 +16,9 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { BehaviorSubject, from, map, Observable, switchMap } from 'rxjs';
 
+import { AUTH_MESSAGES } from '../constants/auth';
 import { USERS_COLLECTION } from '../constants/users';
+import { AppUser } from '../models/app-user.model';
 import { DEFAULT_USER_ROLE } from '../models/user-role.model';
 
 @Injectable({
@@ -54,23 +56,8 @@ export class AuthService {
     return from(
       createUserWithEmailAndPassword(this.firebaseAuth, email, password),
     ).pipe(
-      switchMap((credential) =>
-        from(
-          updateProfile(credential.user, {
-            displayName: name,
-          }),
-        ).pipe(map(() => credential)),
-      ),
-      switchMap((credential) =>
-        from(
-          setDoc(doc(this.firestore, USERS_COLLECTION, credential.user.uid), {
-            uid: credential.user.uid,
-            email: credential.user.email,
-            displayName: name,
-            role: DEFAULT_USER_ROLE,
-          }),
-        ).pipe(map(() => credential)),
-      ),
+      switchMap((credential) => this.updateUserName(credential, name)),
+      switchMap((credential) => this.createUserDocument(credential, name)),
     );
   }
 
@@ -83,11 +70,7 @@ export class AuthService {
   }
 
   updateProfileData(name: string): Observable<void> {
-    const user = this.currentUser;
-
-    if (!user) {
-      throw new Error('User is not authorized');
-    }
+    const user = this.getAuthorizedUser();
 
     return from(
       updateProfile(user, {
@@ -97,11 +80,7 @@ export class AuthService {
   }
 
   changeEmail(currentPassword: string, newEmail: string): Observable<void> {
-    const user = this.currentUser;
-
-    if (!user || !user.email) {
-      throw new Error('User is not authorized');
-    }
+    const user = this.getAuthorizedUserWithEmail();
 
     const credential = EmailAuthProvider.credential(
       user.email,
@@ -119,11 +98,7 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ): Observable<void> {
-    const user = this.currentUser;
-
-    if (!user || !user.email) {
-      throw new Error('User is not authorized');
-    }
+    const user = this.getAuthorizedUserWithEmail();
 
     const credential = EmailAuthProvider.credential(
       user.email,
@@ -135,5 +110,55 @@ export class AuthService {
         updatePassword(user, newPassword),
       ),
     );
+  }
+
+  private updateUserName(
+    credential: UserCredential,
+    name: string,
+  ): Observable<UserCredential> {
+    return from(
+      updateProfile(credential.user, {
+        displayName: name,
+      }),
+    ).pipe(map(() => credential));
+  }
+
+  private createUserDocument(
+    credential: UserCredential,
+    name: string,
+  ): Observable<UserCredential> {
+    const userData = this.createAppUser(credential.user, name);
+    const userRef = doc(this.firestore, USERS_COLLECTION, credential.user.uid);
+
+    return from(setDoc(userRef, userData)).pipe(map(() => credential));
+  }
+
+  private createAppUser(user: User, name: string): AppUser {
+    return {
+      uid: user.uid,
+      email: user.email,
+      displayName: name,
+      role: DEFAULT_USER_ROLE,
+    };
+  }
+
+  private getAuthorizedUser(): User {
+    const user = this.currentUser;
+
+    if (!user) {
+      throw new Error(AUTH_MESSAGES.userNotAuthorized);
+    }
+
+    return user;
+  }
+
+  private getAuthorizedUserWithEmail(): User & { email: string } {
+    const user = this.getAuthorizedUser();
+
+    if (!user.email) {
+      throw new Error(AUTH_MESSAGES.userNotAuthorized);
+    }
+
+    return user as User & { email: string };
   }
 }
