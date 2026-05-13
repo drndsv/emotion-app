@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,8 +24,10 @@ import {
   JOURNAL_MESSAGES,
 } from '../../../core/constants/journal';
 import { JOURNAL_ENTRY_ID_PARAM } from '../../../core/constants/journal-form';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   formatJournalDate,
   formatJournalTime,
@@ -37,10 +40,11 @@ import {
   styleUrl: './journal-details-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class JournalDetailsPageComponent {
+export class JournalDetailsPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly journalService = inject(JournalService);
+  private readonly loggerService = inject(LoggerService);
   private readonly dialogs = inject(TuiDialogService);
   private readonly notifications = inject(TuiNotificationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -53,15 +57,22 @@ export class JournalDetailsPageComponent {
   protected readonly isNotFound = signal(false);
   protected readonly errorMessage = signal('');
 
-  constructor() {
+  ngOnInit(): void {
     this.route.paramMap
       .pipe(
         map((params) => params.get(JOURNAL_ENTRY_ID_PARAM)),
         filter((id): id is string => id !== null),
         switchMap((id) =>
           this.journalService.getEntryById(id).pipe(
-            catchError(() => {
+            catchError((error: unknown) => {
               this.errorMessage.set(JOURNAL_MESSAGES.loadFailed);
+
+              this.loggerService
+                .logError(LOGGER_EVENTS.journalEntryLoadFailed, error, {
+                  entryId: id,
+                })
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe();
 
               return of(null);
             }),
@@ -121,14 +132,30 @@ export class JournalDetailsPageComponent {
         next: () => {
           this.isDeleting.set(false);
 
-          this.notifications.open(JOURNAL_MESSAGES.deleteSuccess).subscribe();
+          this.loggerService
+            .logEvent(LOGGER_EVENTS.journalEntryDeleted, {
+              entryId: currentEntry.id,
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.notifications
+                .open(JOURNAL_MESSAGES.deleteSuccess)
+                .subscribe();
 
-          void this.router.navigate(['/journal']);
+              void this.router.navigate(['/journal']);
+            });
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isDeleting.set(false);
 
           this.notifications.open(JOURNAL_MESSAGES.deleteFailed).subscribe();
+
+          this.loggerService
+            .logError(LOGGER_EVENTS.journalEntryDeleteFailed, error, {
+              entryId: currentEntry.id,
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
         },
       });
   }

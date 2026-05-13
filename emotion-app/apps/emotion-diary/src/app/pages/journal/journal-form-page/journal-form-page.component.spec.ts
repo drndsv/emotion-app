@@ -10,6 +10,10 @@ jest.mock('../../../core/services/journal.service', () => ({
   JournalService: class JournalService {},
 }));
 
+jest.mock('../../../core/services/logger.service', () => ({
+  LoggerService: class LoggerService {},
+}));
+
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmotionAnalysisService } from '@emotion-app/emotion-analysis';
@@ -24,6 +28,7 @@ import {
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 
 import { JournalFormPageComponent } from './journal-form-page.component';
 
@@ -67,6 +72,11 @@ function setup(
     updateEntry: jest.fn(() => of(undefined)),
   };
 
+  const loggerService = {
+    logEvent: jest.fn(() => of(null)),
+    logError: jest.fn(() => of(null)),
+  };
+
   const authService = {
     currentUser,
   };
@@ -102,6 +112,10 @@ function setup(
       {
         provide: JournalService,
         useValue: journalService,
+      },
+      {
+        provide: LoggerService,
+        useValue: loggerService,
       },
       {
         provide: AuthService,
