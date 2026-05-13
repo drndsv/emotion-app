@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 
+import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { AppLayoutComponent } from './layout/app-layout.component';
@@ -9,6 +10,7 @@ import { DashboardPageComponent } from './pages/dashboard/dashboard-page/dashboa
 import { JournalDetailsPageComponent } from './pages/journal/journal-details-page/journal-details-page.component';
 import { JournalFormPageComponent } from './pages/journal/journal-form-page/journal-form-page.component';
 import { JournalPageComponent } from './pages/journal/journal-page/journal-page.component';
+import { MonitoringPageComponent } from './pages/monitoring/monitoring-page.component';
 import { NotFoundPageComponent } from './pages/not-found/not-found-page.component';
 import { ProfilePageComponent } from './pages/profile/profile-page/profile-page.component';
 
@@ -52,6 +54,11 @@ export const appRoutes: Route[] = [
       {
         path: 'profile',
         component: ProfilePageComponent,
+      },
+      {
+        path: 'monitoring',
+        canActivate: [adminGuard],
+        component: MonitoringPageComponent,
       },
       {
         path: '',
