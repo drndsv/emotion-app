@@ -110,10 +110,25 @@ export class DashboardPageComponent implements OnInit {
     EMOTION_STATE_ORDER.map((state) => getEmotionLabel(state)),
   );
 
+  protected readonly selectedMonthEntries = computed(() => {
+    const selectedMonth = this.selectedMonth();
+
+    return this.entries().filter((entry) => {
+      const entryDate = entry.createdAt.toDate();
+
+      return (
+        entryDate.getFullYear() === selectedMonth.getFullYear() &&
+        entryDate.getMonth() === selectedMonth.getMonth()
+      );
+    });
+  });
+
   protected readonly ringChartValue = computed<readonly number[]>(() =>
     EMOTION_STATE_ORDER.map(
       (state) =>
-        this.entries().filter((entry) => entry.finalState === state).length,
+        this.selectedMonthEntries().filter(
+          (entry) => entry.finalState === state,
+        ).length,
     ),
   );
 
