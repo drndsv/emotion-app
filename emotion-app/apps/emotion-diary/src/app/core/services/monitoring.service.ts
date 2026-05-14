@@ -12,12 +12,13 @@ import { from, map, Observable } from 'rxjs';
 
 import { APP_LOGS_COLLECTION } from '../constants/logger';
 import {
+  MONITORING_LOGS_LIMIT,
+  MONITORING_RECENT_ERRORS_LIMIT,
+} from '../constants/monitoring';
+import {
   AppLogDocument,
   MonitoringSummary,
 } from '../models/monitoring-stat.model';
-
-const MONITORING_LOGS_LIMIT = 200;
-const MONITORING_RECENT_ERRORS_LIMIT = 10;
 
 @Injectable({
   providedIn: 'root',

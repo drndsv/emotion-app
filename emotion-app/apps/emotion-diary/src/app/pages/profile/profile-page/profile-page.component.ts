@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
-import { filter } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 
 import { AUTH_PASSWORD_MIN_LENGTH } from '../../../core/constants/auth';
 import { LOGGER_EVENTS } from '../../../core/constants/logger';
@@ -242,19 +242,17 @@ export class ProfilePageComponent implements OnInit {
     this.isLogoutLoading.set(true);
     this.clearMessages();
 
-    this.authService
-      .logout()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.loggerService
+      .logEvent(LOGGER_EVENTS.authLogoutSuccess)
+      .pipe(
+        switchMap(() => this.authService.logout()),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.isLogoutLoading.set(false);
 
-          this.loggerService
-            .logEvent(LOGGER_EVENTS.authLogoutSuccess)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              void this.router.navigate(['/login']);
-            });
+          void this.router.navigate(['/login']);
         },
         error: (error: unknown) => {
           this.isLogoutLoading.set(false);
