@@ -12,6 +12,37 @@
       />
     </tui-textfield>
 
+    <div class="journal-page__filters">
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="journal-page__filter"
+      >
+        <input
+          tuiSelect
+          placeholder="Состояние"
+          [formControl]="stateFilterControl"
+        />
+
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="stateFilterItems"
+        />
+      </tui-textfield>
+
+      <tui-textfield
+        tuiTextfieldSize="m"
+        class="journal-page__filter"
+      >
+        <input
+          tuiInputDate
+          placeholder="Дата"
+          [formControl]="dateFilterControl"
+        />
+        <tui-calendar *tuiDropdown />
+      </tui-textfield>
+    </div>
+
     <a
       routerLink="/journal/new"
       tuiButton

@@ -11,16 +11,26 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EmotionState } from '@emotion-app/shared';
-import { TuiButton, TuiInput, TuiLoader } from '@taiga-ui/core';
-import { TuiPagination } from '@taiga-ui/kit';
+import { TuiDay } from '@taiga-ui/cdk';
+import { TuiButton, TuiInput, TuiLoader, TuiCalendar } from '@taiga-ui/core';
+import {
+  TuiChevron,
+  TuiDataListWrapper,
+  TuiInputDate,
+  TuiPagination,
+  TuiSelect,
+} from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { catchError, filter, of, startWith, switchMap } from 'rxjs';
+import { catchError, filter, merge, of, startWith, switchMap } from 'rxjs';
 
 import {
+  EMOTION_STATE_LABELS,
   getEmotionEmoji,
   getEmotionLabel,
+  getEmotionStateByLabel,
 } from '../../../core/constants/emotion-states';
 import {
+  JOURNAL_ALL_STATES_LABEL,
   JOURNAL_INITIAL_PAGE,
   JOURNAL_MESSAGES,
   JOURNAL_MIN_PAGES_FOR_PAGINATION,
@@ -48,6 +58,11 @@ import { filterJournalEntries } from '../../../core/utils/journal-search.util';
     TuiLoader,
     TuiCardLarge,
     TuiPagination,
+    TuiChevron,
+    TuiSelect,
+    TuiDataListWrapper,
+    TuiInputDate,
+    TuiCalendar,
   ],
   templateUrl: './journal-page.component.html',
   styleUrl: './journal-page.component.less',
@@ -64,24 +79,57 @@ export class JournalPageComponent implements OnInit {
 
   protected readonly minPagesForPagination = JOURNAL_MIN_PAGES_FOR_PAGINATION;
 
+  protected readonly stateFilterItems = [
+    JOURNAL_ALL_STATES_LABEL,
+    ...EMOTION_STATE_LABELS,
+  ];
+
   protected readonly searchControl = new FormControl('', { nonNullable: true });
+
+  protected readonly stateFilterControl = new FormControl(
+    JOURNAL_ALL_STATES_LABEL,
+    { nonNullable: true },
+  );
+
+  protected readonly dateFilterControl = new FormControl<TuiDay | null>(null);
 
   private readonly searchQuery = toSignal(
     this.searchControl.valueChanges.pipe(startWith(this.searchControl.value)),
     { initialValue: '' },
   );
 
+  private readonly selectedStateLabel = toSignal(
+    this.stateFilterControl.valueChanges.pipe(
+      startWith(this.stateFilterControl.value),
+    ),
+    { initialValue: JOURNAL_ALL_STATES_LABEL },
+  );
+
+  private readonly selectedDate = toSignal(
+    this.dateFilterControl.valueChanges.pipe(
+      startWith(this.dateFilterControl.value),
+    ),
+    { initialValue: null },
+  );
+
   protected readonly entries = signal<readonly JournalEntry[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal('');
 
-  protected readonly filteredEntries = computed(() =>
-    filterJournalEntries(
-      this.entries(),
-      this.searchQuery(),
-      this.formatDate.bind(this),
-    ),
-  );
+  protected readonly filteredEntries = computed(() => {
+    const selectedState =
+      this.selectedStateLabel() === JOURNAL_ALL_STATES_LABEL
+        ? null
+        : getEmotionStateByLabel(this.selectedStateLabel());
+
+    return filterJournalEntries({
+      entries: this.entries(),
+      query: this.searchQuery(),
+      formatDate: this.formatDate.bind(this),
+      selectedState,
+      selectedDate: this.selectedDate(),
+    });
+  });
 
   protected readonly totalPages = computed(() =>
     Math.ceil(this.filteredEntries().length / this.pageSize),
@@ -98,6 +146,16 @@ export class JournalPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    merge(
+      this.searchControl.valueChanges,
+      this.stateFilterControl.valueChanges,
+      this.dateFilterControl.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage.set(JOURNAL_INITIAL_PAGE);
+      });
+
     this.authService.currentUser$
       .pipe(
         filter((user) => user !== null && user !== undefined),

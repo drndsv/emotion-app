@@ -11,6 +11,7 @@ jest.mock('../../../core/services/logger.service', () => ({
 }));
 
 import { TestBed } from '@angular/core/testing';
+import { TuiDay } from '@taiga-ui/cdk';
 import { Timestamp } from 'firebase/firestore';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -132,6 +133,14 @@ function setup(
       searchControl: {
         value: string;
         setValue: (value: string) => void;
+      };
+      stateFilterControl: {
+        value: string;
+        setValue: (value: string) => void;
+      };
+      dateFilterControl: {
+        value: TuiDay | null;
+        setValue: (value: TuiDay | null) => void;
       };
       entries: () => readonly JournalEntry[];
       isLoading: () => boolean;
@@ -295,6 +304,78 @@ describe('JournalPageComponent', () => {
       component.searchControl.setValue('нет совпадений');
 
       expect(component.filteredEntries()).toEqual([]);
+    });
+
+    it('should filter entries by selected emotion state', () => {
+      const joyEntry = createEntry(
+        '1',
+        new Date(2026, 4, 12, 10, 0),
+        'Радостная запись',
+      );
+
+      const sadnessEntry: JournalEntry = {
+        ...createEntry('2', new Date(2026, 4, 12, 11, 0), 'Грустная запись'),
+        finalState: 'sadness',
+      };
+
+      const { component } = setup({
+        entries: [joyEntry, sadnessEntry],
+      });
+
+      component.stateFilterControl.setValue('Грусть');
+
+      expect(component.filteredEntries()).toEqual([sadnessEntry]);
+    });
+
+    it('should filter entries by selected date', () => {
+      const targetEntry = createEntry('1', new Date(2026, 4, 12, 10, 0));
+      const otherEntry = createEntry('2', new Date(2026, 4, 13, 10, 0));
+
+      const { component } = setup({
+        entries: [targetEntry, otherEntry],
+      });
+
+      component.dateFilterControl.setValue(new TuiDay(2026, 4, 12));
+
+      expect(component.filteredEntries()).toEqual([targetEntry]);
+    });
+  });
+
+  describe('filters', () => {
+    it('should reset current page when search query changes', () => {
+      const { component } = setup({
+        entries: createEntries(JOURNAL_PAGE_SIZE + 5),
+      });
+
+      component.currentPage.set(1);
+
+      component.searchControl.setValue('запись');
+
+      expect(component.currentPage()).toBe(JOURNAL_INITIAL_PAGE);
+    });
+
+    it('should reset current page when state filter changes', () => {
+      const { component } = setup({
+        entries: createEntries(JOURNAL_PAGE_SIZE + 5),
+      });
+
+      component.currentPage.set(1);
+
+      component.stateFilterControl.setValue('Радость');
+
+      expect(component.currentPage()).toBe(JOURNAL_INITIAL_PAGE);
+    });
+
+    it('should reset current page when date filter changes', () => {
+      const { component } = setup({
+        entries: createEntries(JOURNAL_PAGE_SIZE + 5),
+      });
+
+      component.currentPage.set(1);
+
+      component.dateFilterControl.setValue(new TuiDay(2026, 4, 12));
+
+      expect(component.currentPage()).toBe(JOURNAL_INITIAL_PAGE);
     });
   });
 

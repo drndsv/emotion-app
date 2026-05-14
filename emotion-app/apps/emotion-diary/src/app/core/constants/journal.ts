@@ -16,3 +16,5 @@ export const JOURNAL_PAGE_SIZE = 9;
 export const JOURNAL_INITIAL_PAGE = 0;
 
 export const JOURNAL_MIN_PAGES_FOR_PAGINATION = 1;
+
+export const JOURNAL_ALL_STATES_LABEL = 'Все состояния';
