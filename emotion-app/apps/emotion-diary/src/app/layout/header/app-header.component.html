@@ -1,0 +1,43 @@
+<header class="app-header">
+  <a routerLink="/dashboard" class="app-header__logo">
+    Emotion Diary
+  </a>
+
+  <div class="app-header__actions">
+    <nav class="app-header__nav">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="app-header__link_active"
+        class="app-header__link"
+      >
+        Дашборд
+      </a>
+
+      <a
+        routerLink="/journal"
+        routerLinkActive="app-header__link_active"
+        class="app-header__link"
+      >
+        Дневник
+      </a>
+
+      @if (isAdmin()) {
+        <a
+          routerLink="/monitoring"
+          routerLinkActive="app-header__link_active"
+          class="app-header__link"
+        >
+          Мониторинг
+        </a>
+      }
+    </nav>
+
+    <a
+      routerLink="/profile"
+      class="app-header__profile"
+      aria-label="Профиль"
+    >
+      <div tuiAvatar="@tui.user" class="app-header__avatar"></div>
+    </a>
+  </div>
+</header>

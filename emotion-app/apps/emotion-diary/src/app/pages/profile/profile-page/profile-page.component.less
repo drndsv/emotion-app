@@ -1,0 +1,217 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+}
+
+.profile-page {
+  --profile-padding-desktop: 32px;
+  --profile-padding-mobile: 20px;
+  --profile-border-radius: 28px;
+
+  --profile-block-spacing-desktop: 32px;
+  --profile-block-spacing-mobile: 24px;
+
+  --profile-field-spacing: 16px;
+  --profile-field-label-width: 80px;
+
+  --profile-centered-height: 300px;
+
+  --profile-section-spacing-desktop: 40px;
+  --profile-section-spacing-mobile: 32px;
+
+  --profile-message-padding-vertical: 12px;
+  --profile-message-padding-horizontal: 16px;
+
+  --profile-section-padding-top: 24px;
+  --profile-section-form-spacing: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: var(--profile-padding-desktop);
+  border-radius: var(--profile-border-radius);
+  background: #ffffff;
+
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.06),
+      -6px -6px 18px rgba(255, 255, 255, 0.9);
+
+  > * + * {
+    margin-top: var(--profile-block-spacing-desktop);
+  }
+
+  &__centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: var(--profile-centered-height);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__form > * + * {
+    margin-top: var(--profile-field-spacing);
+  }
+
+  &__field {
+    display: grid;
+    grid-template-columns:
+      var(--profile-field-label-width)
+      minmax(0, 1fr);
+
+    align-items: center;
+  }
+
+  &__label {
+    font: var(--tui-typography-body-m);
+    font-weight: 600;
+    color: #2f2550;
+  }
+
+  &__textfield {
+    width: 100%;
+  }
+
+  &__message {
+    margin: 0;
+
+    padding:
+      var(--profile-message-padding-vertical)
+      var(--profile-message-padding-horizontal);
+
+    border-radius: 16px;
+
+    font: var(--tui-typography-body-m);
+  }
+
+  &__message_error {
+    background: #fff3f3;
+    border: 1px solid #f0c4c4;
+    color: #b42318;
+  }
+
+  &__message_success {
+    background: #f1fbf4;
+    border: 1px solid #bfe8ca;
+    color: #267a3e;
+  }
+
+  &__email {
+    margin-top: var(--profile-section-spacing-desktop);
+  }
+
+  &__password {
+    margin-top: var(--profile-section-spacing-desktop);
+  }
+
+  &__logout {
+    align-self: flex-start;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 768px) {
+    padding: var(--profile-padding-mobile);
+
+    > * + * {
+      margin-top: var(--profile-block-spacing-mobile);
+    }
+
+    &__actions {
+      justify-content: stretch;
+    }
+
+    &__actions button {
+      width: 100%;
+    }
+
+    &__field {
+      grid-template-columns: 1fr;
+    }
+
+    &__field > * + * {
+      margin-top: 8px;
+    }
+
+    &__email {
+      margin-top: var(--profile-section-spacing-mobile);
+    }
+
+    &__password {
+      margin-top: var(--profile-section-spacing-mobile);
+    }
+
+    &__logout {
+      width: 100%;
+      margin-top: var(--profile-section-spacing-mobile);
+    }
+  }
+}
+
+.email-section,
+.password-section {
+  padding-top: var(--profile-section-padding-top);
+  border-top: 1px solid #e4def7;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0;
+
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+
+    margin-top: var(--profile-section-form-spacing);
+  }
+
+  &__form > * + * {
+    margin-top: var(--profile-field-spacing);
+  }
+
+  &__submit {
+    align-self: flex-end;
+    margin-top: var(--profile-section-padding-top);
+  }
+
+  &__readonly {
+    margin-top: var(--profile-section-form-spacing);
+  }
+
+  @media (max-width: 768px) {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__header > * + * {
+      margin-top: 12px;
+    }
+
+    &__submit {
+      align-self: stretch;
+    }
+  }
+}

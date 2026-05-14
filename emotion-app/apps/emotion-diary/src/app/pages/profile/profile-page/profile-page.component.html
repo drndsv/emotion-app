@@ -1,0 +1,225 @@
+@if (isLoading()) {
+  <div class="profile-page__centered">
+    <tui-loader />
+  </div>
+} @else {
+  <section class="profile-page">
+    <div class="profile-page__actions">
+      @if (isEditMode()) {
+        <button
+          tuiButton
+          appearance="primary"
+          size="m"
+          type="button"
+          [disabled]="isSaving()"
+          (click)="saveProfile()"
+        >
+          @if (isSaving()) {
+            Сохранение...
+          } @else {
+            Сохранить
+          }
+        </button>
+      } @else {
+        <button
+          tuiButton
+          appearance="outline"
+          size="m"
+          type="button"
+          (click)="toggleEditMode()"
+        >
+          Изменить данные
+        </button>
+      }
+    </div>
+
+    @if (errorMessage()) {
+      <p class="profile-page__message profile-page__message_error">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (successMessage()) {
+      <p class="profile-page__message profile-page__message_success">
+        {{ successMessage() }}
+      </p>
+    }
+
+    <form class="profile-page__form">
+      <label class="profile-page__field">
+        <span class="profile-page__label">Имя</span>
+
+        <tui-textfield class="profile-page__textfield">
+          <input
+            tuiInput
+            placeholder="Введите имя"
+            [formControl]="nameControl"
+            [readOnly]="!isEditMode()"
+          />
+        </tui-textfield>
+      </label>
+    </form>
+
+    <section class="profile-page__email email-section">
+      <div class="email-section__header">
+        <h2 class="email-section__title">Email</h2>
+
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="toggleEmailEditMode()"
+        >
+          @if (isEmailEditMode()) {
+            Отменить
+          } @else {
+            Изменить email
+          }
+        </button>
+      </div>
+
+      @if (isEmailEditMode()) {
+        <form class="email-section__form">
+          <label class="profile-page__field">
+            <span class="profile-page__label">Новый</span>
+
+            <tui-textfield class="profile-page__textfield">
+              <input
+                tuiInput
+                type="email"
+                placeholder="Введите новый email"
+                [formControl]="newEmailControl"
+              />
+            </tui-textfield>
+          </label>
+
+          <label class="profile-page__field">
+            <span class="profile-page__label">Пароль</span>
+
+            <tui-textfield class="profile-page__textfield">
+              <input
+                tuiInput
+                type="password"
+                placeholder="Введите текущий пароль"
+                [formControl]="emailPasswordControl"
+              />
+            </tui-textfield>
+          </label>
+
+          <button
+            tuiButton
+            appearance="primary"
+            size="m"
+            type="button"
+            class="email-section__submit"
+            [disabled]="isChangingEmail()"
+            (click)="changeEmail()"
+          >
+            @if (isChangingEmail()) {
+              Смена email...
+            } @else {
+              Сохранить email
+            }
+          </button>
+        </form>
+      } @else {
+        <div class="email-section__readonly">
+          <div class="profile-page__field">
+            <span class="profile-page__label">Email</span>
+
+            <tui-textfield class="profile-page__textfield">
+              <input
+                tuiInput
+                [formControl]="emailControl"
+                [readOnly]="true"
+              />
+            </tui-textfield>
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="profile-page__password password-section">
+      <div class="password-section__header">
+        <h2 class="password-section__title">Пароль</h2>
+
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="togglePasswordEditMode()"
+        >
+          @if (isPasswordEditMode()) {
+            Отменить
+          } @else {
+            Сменить пароль
+          }
+        </button>
+      </div>
+
+      @if (isPasswordEditMode()) {
+        <form class="password-section__form">
+          <label class="profile-page__field">
+            <span class="profile-page__label">Текущий</span>
+
+            <tui-textfield class="profile-page__textfield">
+              <input
+                tuiInput
+                type="password"
+                placeholder="Введите текущий пароль"
+                [formControl]="currentPasswordControl"
+              />
+            </tui-textfield>
+          </label>
+
+          <label class="profile-page__field">
+            <span class="profile-page__label">Новый</span>
+
+            <tui-textfield class="profile-page__textfield">
+              <input
+                tuiInput
+                type="password"
+                placeholder="Минимум {{ passwordMinLength }} символов"
+                [formControl]="newPasswordControl"
+              />
+            </tui-textfield>
+          </label>
+
+          <button
+            tuiButton
+            appearance="primary"
+            size="m"
+            type="button"
+            class="password-section__submit"
+            [disabled]="isChangingPassword()"
+            (click)="changePassword()"
+          >
+            @if (isChangingPassword()) {
+              Смена пароля...
+            } @else {
+              Сохранить пароль
+            }
+          </button>
+        </form>
+      }
+    </section>
+
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      class="profile-page__logout"
+      [disabled]="isLogoutLoading()"
+      (click)="logout()"
+    >
+      @if (isLogoutLoading()) {
+        Выход...
+      } @else {
+        Выйти
+      }
+    </button>
+  </section>
+}

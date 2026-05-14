@@ -1,0 +1,45 @@
+@import '../styles/auth-page';
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f3fb;
+}
+
+.register-page {
+  &:extend(.auth-page all);
+
+  &__title {
+    margin: 0;
+
+    font: var(--tui-typography-heading-h4);
+    color: #2f2550;
+  }
+
+  &__submit {
+    align-self: center;
+    min-width: 180px;
+    margin-top: 28px;
+  }
+
+  &__link {
+    font: var(--tui-typography-body-m);
+    color: #3f3566;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  &__error {
+    margin: 0;
+
+    font: var(--tui-typography-body-s);
+    color: #c0392b;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    &__submit {
+      width: 100%;
+    }
+  }
+}

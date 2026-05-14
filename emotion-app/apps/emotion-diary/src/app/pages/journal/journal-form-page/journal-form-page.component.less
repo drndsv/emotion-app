@@ -1,0 +1,179 @@
+@import '../styles/journal-shared';
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.journal-form-page {
+  &:extend(.journal-shell all);
+
+  --journal-form-content-width: 920px;
+  --journal-form-select-width: 260px;
+
+  max-width: 920px;
+  margin: 0 auto;
+
+  &__centered {
+    &:extend(.journal-centered all);
+  }
+
+  &__title {
+    margin: 0;
+    font: var(--tui-typography-heading-h4);
+    color: #2f2550;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 10px;
+
+    font: var(--tui-typography-body-m);
+    color: #6b6287;
+  }
+
+  &__meta-divider {
+    color: #b1a8cf;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    max-width: var(--journal-form-content-width);
+  }
+
+  &__field > * + * {
+    margin-top: 12px;
+  }
+
+  &__label {
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__select {
+    width: var(--journal-form-select-width);
+  }
+
+  &__textarea-field {
+    width: 100%;
+    max-width: var(--journal-form-content-width);
+  }
+
+  &__analysis-button {
+    align-self: flex-end;
+  }
+
+  &__analysis {
+    max-width: var(--journal-form-content-width);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__actions > * + * {
+    margin-left: 16px;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 12px 16px;
+
+    border-radius: 16px;
+    background: #fff3f3;
+    border: 1px solid #f0c4c4;
+
+    font: var(--tui-typography-body-m);
+    color: #b42318;
+  }
+
+  @media (max-width: 768px) {
+    &__field {
+      max-width: none;
+    }
+
+    &__select {
+      width: 100%;
+    }
+
+    &__textarea-field {
+      max-width: none;
+    }
+
+    &__analysis-button {
+      align-self: stretch;
+    }
+
+    &__actions {
+      flex-direction: column;
+    }
+
+    &__actions > * + * {
+      margin-left: 0;
+      margin-top: 12px;
+    }
+  }
+}
+
+.analysis-block {
+  --analysis-block-select-width: 260px;
+
+  padding: 24px;
+  border: 2px dashed #7c6cff;
+  border-radius: 24px;
+  background: #fbfaff;
+
+  > * + * {
+    margin-top: 20px;
+  }
+
+  &__title {
+    margin: 0;
+    font: var(--tui-typography-heading-h6);
+    color: #2f2550;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__field > * + * {
+    margin-top: 10px;
+  }
+
+  &__label {
+    font: var(--tui-typography-body-m);
+    font-weight: 600;
+    color: #2f2550;
+  }
+
+  &__content {
+    &:extend(.journal-card all);
+
+    padding: 14px 18px;
+
+    border-radius: 16px;
+
+    font: var(--tui-typography-body-m);
+    color: #4b3f73;
+  }
+
+  &__select {
+    width: var(--analysis-block-select-width);
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    &__select {
+      width: 100%;
+    }
+  }
+}

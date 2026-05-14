@@ -1,0 +1,75 @@
+<section class="login-page">
+  <div class="login-page__card">
+    <a class="login-page__logo">
+      Emotion Diary
+    </a>
+
+    <h4 class="login-page__title">Вход</h4>
+
+    <form
+      tuiForm="m"
+      class="login-page__form"
+      [formGroup]="form"
+      (ngSubmit)="login()"
+    >
+      <div class="login-page__control">
+        <label tuiLabel>
+          Email
+
+          <tui-textfield class="login-page__field">
+            <input
+              tuiInput
+              type="email"
+              placeholder="Введите email"
+              formControlName="email"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="email" />
+      </div>
+
+      <div class="login-page__control">
+        <label tuiLabel>
+          Пароль
+
+          <tui-textfield class="login-page__field">
+            <input
+              tuiInput
+              type="password"
+              placeholder="Введите пароль"
+              formControlName="password"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="password" />
+      </div>
+
+      @if (errorMessage()) {
+        <p class="login-page__error">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="submit"
+        class="login-page__submit"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          Вход...
+        } @else {
+          Войти
+        }
+      </button>
+    </form>
+
+    <a routerLink="/register" class="login-page__link">
+      Нет аккаунта? Зарегистрироваться
+    </a>
+  </div>
+</section>
