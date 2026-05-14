@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -59,7 +60,7 @@ import { buildHeatmapCells } from '../../../core/utils/heatmap.util';
   styleUrl: './dashboard-page.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPageComponent {
+export class DashboardPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
@@ -127,7 +128,7 @@ export class DashboardPageComponent {
     return this.ringChartValue()[this.activeStateIndex] ?? 0;
   }
 
-  constructor() {
+  ngOnInit(): void {
     this.authService.currentUser$
       .pipe(
         filter((user) => user !== undefined),

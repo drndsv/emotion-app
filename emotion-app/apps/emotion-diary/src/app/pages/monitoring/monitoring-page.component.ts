@@ -10,11 +10,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TuiLoader } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
 
+import {
+  MONITORING_DATE_LOCALE,
+  MONITORING_MESSAGES,
+} from '../../core/constants/monitoring';
 import { MonitoringSummary } from '../../core/models/monitoring-stat.model';
 import { MonitoringService } from '../../core/services/monitoring.service';
 
 @Component({
-  selector: 'app-monitoring-page.component',
+  selector: 'app-monitoring-page',
   imports: [TuiLoader, TuiCardLarge],
   templateUrl: './monitoring-page.component.html',
   styleUrl: './monitoring-page.component.less',
@@ -38,7 +42,7 @@ export class MonitoringPageComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: () => {
-          this.errorMessage.set('Не удалось загрузить данные мониторинга');
+          this.errorMessage.set(MONITORING_MESSAGES.loadFailed);
           this.isLoading.set(false);
         },
       });
@@ -46,9 +50,9 @@ export class MonitoringPageComponent implements OnInit {
 
   protected formatDate(log: { createdAt?: { toDate: () => Date } }): string {
     if (!log.createdAt) {
-      return 'Дата неизвестна';
+      return MONITORING_MESSAGES.unknownDate;
     }
 
-    return log.createdAt.toDate().toLocaleString('ru-RU');
+    return log.createdAt.toDate().toLocaleString(MONITORING_DATE_LOCALE);
   }
 }
