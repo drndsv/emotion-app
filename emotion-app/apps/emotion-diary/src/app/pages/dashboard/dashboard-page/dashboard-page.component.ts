@@ -32,11 +32,13 @@ import {
   getEmotionEmoji,
   getEmotionLabel,
 } from '../../../core/constants/emotion-states';
+import { LOGGER_EVENTS } from '../../../core/constants/logger';
 import { DayPeriod } from '../../../core/models/day-period.model';
 import { HeatmapCell } from '../../../core/models/heatmap-cell.model';
 import { JournalEntry } from '../../../core/models/journal-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { JournalService } from '../../../core/services/journal.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   getDaysInMonth,
   getNextMonth,
@@ -63,6 +65,7 @@ import { buildHeatmapCells } from '../../../core/utils/heatmap.util';
 export class DashboardPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly journalService = inject(JournalService);
+  private readonly loggerService = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly userName = signal(DASHBOARD_DEFAULT_USER_NAME);
@@ -146,8 +149,13 @@ export class DashboardPageComponent implements OnInit {
           );
 
           return this.journalService.getUserEntries(user.uid).pipe(
-            catchError(() => {
+            catchError((error: unknown) => {
               this.errorMessage.set(DASHBOARD_LOAD_ERROR_MESSAGE);
+
+              this.loggerService
+                .logError(LOGGER_EVENTS.journalEntriesLoadFailed, error)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe();
 
               return of([]);
             }),
