@@ -1,0 +1,17 @@
+server:
+  port: ${BACKEND_PORT:8080}
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/emotion_diary}
+    username: ${DB_USER:emotion}
+    password: ${DB_PASSWORD:emotion}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+app:
+  cors-origin: ${CORS_ORIGIN:http://localhost:4200}
+  jwt-secret: ${JWT_SECRET:change-me-super-secret-key-change-me-super-secret-key}
+  jwt-expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  gigachat-api-url: ${GIGACHAT_API_URL:https://gigachat.devices.sberbank.ru/api/v1/chat/completions}
+  gigachat-api-key: ${GIGACHAT_API_KEY:}
