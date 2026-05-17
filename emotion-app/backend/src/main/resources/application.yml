@@ -14,4 +14,4 @@ app:
   jwt-secret: ${JWT_SECRET:change-me-super-secret-key-change-me-super-secret-key}
   jwt-expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   gigachat-api-url: ${GIGACHAT_API_URL:https://gigachat.devices.sberbank.ru/api/v1/chat/completions}
-  gigachat-api-key: ${GIGACHAT_API_KEY:}
+  gigachat-api-key: ${GIGACHAT_API_KEY:MDE5ZGY3YjgtMGI1My03NjdkLWJhNWItYzIwYmI5NTZiMzRiOmYwODNmNGRiLTQ3N2UtNDk3YS04NmNmLTBjZDM5MmQ2NGEyZQ==}
