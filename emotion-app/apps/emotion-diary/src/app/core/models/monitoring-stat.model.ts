@@ -1,5 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
-
 export interface AppLogDocument {
   id: string;
   type: 'event' | 'error';
@@ -8,7 +6,7 @@ export interface AppLogDocument {
   userId: string | null;
   message?: string;
   details?: Record<string, unknown>;
-  createdAt?: Timestamp;
+  createdAt?: Date | string;
 }
 
 export interface MonitoringEventStat {

@@ -1,5 +1,6 @@
 import { EmotionState } from '@emotion-app/shared';
-import { Timestamp } from 'firebase/firestore';
+
+export type JournalDateValue = Date | string | { toDate: () => Date };
 
 export interface JournalEntry {
   id: string;
@@ -10,15 +11,10 @@ export interface JournalEntry {
   finalState: EmotionState;
   analysis: string;
   recommendation: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: JournalDateValue;
+  updatedAt: JournalDateValue;
 }
 
-export type CreateJournalEntry = Omit<
-  JournalEntry,
-  'id' | 'createdAt' | 'updatedAt'
->;
+export type CreateJournalEntry = Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>;
 
-export type UpdateJournalEntry = Partial<
-  Omit<JournalEntry, 'id' | 'userId' | 'createdAt'>
->;
+export type UpdateJournalEntry = Partial<Omit<JournalEntry, 'id' | 'userId' | 'createdAt'>>;

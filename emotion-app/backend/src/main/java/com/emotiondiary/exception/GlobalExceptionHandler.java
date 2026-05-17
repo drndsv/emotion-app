@@ -1,0 +1,3 @@
+package com.emotiondiary.exception; import org.springframework.http.*;import org.springframework.web.bind.MethodArgumentNotValidException;import org.springframework.web.bind.annotation.*;import java.util.*;
+@RestControllerAdvice public class GlobalExceptionHandler { @ExceptionHandler(ApiException.class) ResponseEntity<Map<String,String>> api(ApiException e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}
+@ExceptionHandler(MethodArgumentNotValidException.class) ResponseEntity<Map<String,String>> val(MethodArgumentNotValidException e){return ResponseEntity.badRequest().body(Map.of("message","Validation failed"));} }
