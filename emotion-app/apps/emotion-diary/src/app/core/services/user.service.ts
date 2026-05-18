@@ -1,34 +1,12 @@
 import { Injectable } from '@angular/core';
-import { getFirestoreInstance } from '@emotion-app/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { from, map, Observable } from 'rxjs';
-
-import { USERS_COLLECTION } from '../constants/users';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AppUser } from '../models/app-user.model';
-import { DEFAULT_USER_ROLE } from '../models/user-role.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly firestore = getFirestoreInstance();
-
-  getUserById(userId: string): Observable<AppUser | null> {
-    return from(getDoc(doc(this.firestore, USERS_COLLECTION, userId))).pipe(
-      map((snapshot) => {
-        if (!snapshot.exists()) {
-          return null;
-        }
-
-        const data = snapshot.data();
-
-        return {
-          uid: userId,
-          email: data['email'] ?? null,
-          displayName: data['displayName'] ?? null,
-          role: data['role'] ?? DEFAULT_USER_ROLE,
-        };
-      }),
-    );
-  }
+  private readonly api = environment.apiUrl;
+  constructor(private readonly http: HttpClient) {}
+  getUserById(userId: string): Observable<AppUser | null> { return this.http.get<any>(`${this.api}/users/me`).pipe(map((u)=>({uid:u.uid,email:u.email,displayName:u.displayName,role:'user'}))); }
 }
