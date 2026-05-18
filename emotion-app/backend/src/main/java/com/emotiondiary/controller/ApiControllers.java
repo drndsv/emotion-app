@@ -1,9 +1,117 @@
 package com.emotiondiary.controller;
-import com.emotiondiary.dto.Dto.*;import com.emotiondiary.service.*;import jakarta.validation.Valid;import lombok.RequiredArgsConstructor;import org.springframework.security.core.Authentication;import org.springframework.web.bind.annotation.*;import java.util.*;
-@RestController @RequestMapping("/api") @RequiredArgsConstructor public class ApiControllers { private final AuthService auth; private final JournalService journal; private final EmotionService emotion;
-private Long uid(Authentication a){return Long.valueOf(a.getName());}
-@PostMapping("/auth/register") AuthResponse register(@Valid @RequestBody RegisterRequest r){return auth.register(r);} @PostMapping("/auth/login") AuthResponse login(@Valid @RequestBody LoginRequest r){return auth.login(r);} @GetMapping("/users/me") UserResponse me(Authentication a){return auth.me(uid(a));} @PutMapping("/users/me") UserResponse upd(Authentication a,@Valid @RequestBody UpdateProfileRequest r){return auth.updateMe(uid(a),r);} 
-@GetMapping("/journal") List<JournalResponse> all(Authentication a){return journal.all(uid(a));} @GetMapping("/journal/{id}") JournalResponse get(Authentication a,@PathVariable Long id){return journal.get(uid(a),id);} @PostMapping("/journal") JournalResponse create(Authentication a,@Valid @RequestBody JournalRequest r){return journal.create(uid(a),r);} @PutMapping("/journal/{id}") JournalResponse update(Authentication a,@PathVariable Long id,@Valid @RequestBody JournalRequest r){return journal.update(uid(a),id,r);} @DeleteMapping("/journal/{id}") void del(Authentication a,@PathVariable Long id){journal.del(uid(a),id);} 
-@PostMapping("/emotion/analyze") EmotionAnalysisResult analyze(@Valid @RequestBody AnalyzeRequest r){return emotion.analyze(r.text());}
-@GetMapping("/analytics/emotions") Map<String,Long> emotions(Authentication a){return Map.of();} @GetMapping("/analytics/summary") Map<String,Object> summary(Authentication a){return Map.of("message","Not implemented yet");}
+
+import com.emotiondiary.dto.Dto.AnalyzeRequest;
+import com.emotiondiary.dto.Dto.AuthResponse;
+import com.emotiondiary.dto.Dto.EmotionAnalysisResult;
+import com.emotiondiary.dto.Dto.JournalRequest;
+import com.emotiondiary.dto.Dto.JournalResponse;
+import com.emotiondiary.dto.Dto.LoginRequest;
+import com.emotiondiary.dto.Dto.RegisterRequest;
+import com.emotiondiary.dto.Dto.UpdateProfileRequest;
+import com.emotiondiary.dto.Dto.UserResponse;
+import com.emotiondiary.service.AuthService;
+import com.emotiondiary.service.EmotionService;
+import com.emotiondiary.service.JournalService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+public class ApiControllers {
+
+  private final AuthService auth;
+
+  private final JournalService journal;
+
+  private final EmotionService emotion;
+
+  private Long uid(Authentication authentication) {
+    return Long.valueOf(authentication.getName());
+  }
+
+  @PostMapping("/auth/register")
+  AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+    return auth.register(request);
+  }
+
+  @PostMapping("/auth/login")
+  AuthResponse login(@Valid @RequestBody LoginRequest request) {
+    return auth.login(request);
+  }
+
+  @GetMapping("/users/me")
+  UserResponse me(Authentication authentication) {
+    return auth.me(uid(authentication));
+  }
+
+  @PutMapping("/users/me")
+  UserResponse updateProfile(
+    Authentication authentication,
+    @Valid @RequestBody UpdateProfileRequest request
+  ) {
+    return auth.updateMe(uid(authentication), request);
+  }
+
+  @GetMapping("/journal")
+  List<JournalResponse> all(Authentication authentication) {
+    return journal.all(uid(authentication));
+  }
+
+  @GetMapping("/journal/{id}")
+  JournalResponse get(
+    Authentication authentication,
+    @PathVariable Long id
+  ) {
+    return journal.get(uid(authentication), id);
+  }
+
+  @PostMapping("/journal")
+  JournalResponse create(
+    Authentication authentication,
+    @Valid @RequestBody JournalRequest request
+  ) {
+    return journal.create(uid(authentication), request);
+  }
+
+  @PutMapping("/journal/{id}")
+  JournalResponse update(
+    Authentication authentication,
+    @PathVariable Long id,
+    @Valid @RequestBody JournalRequest request
+  ) {
+    return journal.update(uid(authentication), id, request);
+  }
+
+  @DeleteMapping("/journal/{id}")
+  void delete(
+    Authentication authentication,
+    @PathVariable Long id
+  ) {
+    journal.delete(uid(authentication), id);
+  }
+
+  @PostMapping("/emotion/analyze")
+  EmotionAnalysisResult analyze(
+    @Valid @RequestBody AnalyzeRequest request
+  ) {
+    return emotion.analyze(request.text());
+  }
+
+  @GetMapping("/analytics/emotions")
+  Map<String, Long> emotions(Authentication authentication) {
+    return Map.of();
+  }
+
+  @GetMapping("/analytics/summary")
+  Map<String, Object> summary(Authentication authentication) {
+    return Map.of(
+      "message",
+      "Not implemented yet"
+    );
+  }
 }

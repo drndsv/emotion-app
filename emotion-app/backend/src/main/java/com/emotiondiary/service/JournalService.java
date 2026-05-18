@@ -1,9 +1,96 @@
-package com.emotiondiary.service; import com.emotiondiary.dto.Dto.*;import com.emotiondiary.entity.*;import com.emotiondiary.exception.ApiException;import com.emotiondiary.repository.*;import lombok.RequiredArgsConstructor;import org.springframework.stereotype.Service;import java.util.*;
-@Service @RequiredArgsConstructor public class JournalService{ private final JournalEntryRepository repo; private final UserRepository users;
-private AppUser u(Long uid){return users.findById(uid).orElseThrow(()->new ApiException("User not found"));}
-private JournalResponse map(JournalEntry e){return new JournalResponse(e.getId(),e.getUser().getId(),e.getText(),e.getSelectedEmotion(),e.getDetectedEmotion(),e.getFinalEmotion(),e.getAnalysis(),e.getRecommendation(),String.valueOf(e.getCreatedAt()),String.valueOf(e.getUpdatedAt()));}
-public List<JournalResponse> all(Long uid){return repo.findByUserOrderByCreatedAtDesc(u(uid)).stream().map(this::map).toList();}
-public JournalResponse get(Long uid,Long id){var e=repo.findById(id).orElseThrow(()->new ApiException("Entry not found")); if(!e.getUser().getId().equals(uid)) throw new ApiException("Forbidden"); return map(e);} 
-public JournalResponse create(Long uid,JournalRequest r){var e=new JournalEntry(); e.setUser(u(uid)); apply(e,r); return map(repo.save(e));}
-public JournalResponse update(Long uid,Long id,JournalRequest r){var e=repo.findById(id).orElseThrow(()->new ApiException("Entry not found")); if(!e.getUser().getId().equals(uid)) throw new ApiException("Forbidden"); apply(e,r); return map(repo.save(e));}
-public void del(Long uid,Long id){var e=repo.findById(id).orElseThrow(()->new ApiException("Entry not found")); if(!e.getUser().getId().equals(uid)) throw new ApiException("Forbidden"); repo.delete(e);} private void apply(JournalEntry e,JournalRequest r){e.setText(r.text());e.setSelectedEmotion(r.selectedEmotion());e.setDetectedEmotion(r.detectedEmotion());e.setFinalEmotion(r.finalEmotion());e.setAnalysis(r.analysis());e.setRecommendation(r.recommendation());}}
+package com.emotiondiary.service;
+import com.emotiondiary.dto.Dto.*;
+import com.emotiondiary.entity.*;
+import com.emotiondiary.exception.ApiException;
+import com.emotiondiary.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class JournalService {
+  private final JournalEntryRepository repo;
+  private final UserRepository users;
+
+  private AppUser user(Long userId){
+    return users.findById(userId)
+      .orElseThrow(() ->
+        new ApiException("User not found"));
+  }
+
+  private JournalResponse map(JournalEntry entry) {
+    return new JournalResponse(
+      entry.getId(),
+      entry.getUser().getId(),
+      entry.getText(),
+      entry.getSelectedEmotion(),
+      entry.getDetectedEmotion(),
+      entry.getFinalEmotion(),
+      entry.getAnalysis(),
+      entry.getRecommendation(),
+      String.valueOf(entry.getCreatedAt()),
+      String.valueOf(entry.getUpdatedAt())
+    );
+  }
+
+  public List<JournalResponse> all(Long userId) {
+    return repo.findByUserOrderByCreatedAtDesc(user(userId))
+      .stream()
+      .map(this::map)
+      .toList();
+  }
+
+  public JournalResponse get(Long userId, Long id) {
+    var entry = repo.findById(id)
+      .orElseThrow(() -> new ApiException("Entry not found")
+      );
+
+    if(!entry.getUser().getId().equals(userId)) {
+      throw new ApiException("Forbidden");
+    }
+
+    return map(entry);
+  }
+
+  public JournalResponse create(Long userId, JournalRequest request) {
+    var entry = new JournalEntry();
+
+    entry.setUser(user(userId)); apply(entry,request);
+
+    return map(repo.save(entry));
+  }
+  public JournalResponse update(Long userId, Long id, JournalRequest request) {
+    var entry = repo.findById(id)
+      .orElseThrow(() -> new ApiException("Entry not found")
+      );
+
+    if(!entry.getUser().getId().equals(userId)) {
+      throw new ApiException("Forbidden");
+    }
+
+    apply(entry,request);
+
+    return map(repo.save(entry));
+  }
+  public void delete(Long userId, Long id) {
+    var entry = repo.findById(id)
+      .orElseThrow(() ->
+        new ApiException("Entry not found")
+      );
+
+    if(!entry.getUser().getId().equals(userId)) {
+      throw new ApiException("Forbidden");
+    }
+    repo.delete(entry);
+  }
+
+  private void apply(JournalEntry entry, JournalRequest request) {
+    entry.setText(request.text());
+    entry.setSelectedEmotion(request.selectedEmotion());
+    entry.setDetectedEmotion(request.detectedEmotion());
+    entry.setFinalEmotion(request.finalEmotion());
+    entry.setAnalysis(request.analysis());
+    entry.setRecommendation(request.recommendation());
+  }
+}
