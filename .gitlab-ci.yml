@@ -1,0 +1,61 @@
+stages:
+  - install
+  - validate
+  - build
+  - deploy
+
+default:
+  image: node:22
+
+variables:
+  APP_DIR: emotion-app
+
+install:
+  stage: install
+  script:
+    - cd $APP_DIR
+    - npm install
+  artifacts:
+    paths:
+      - emotion-app/node_modules/
+
+lint:
+  stage: validate
+  dependencies:
+    - install
+  script:
+    - cd $APP_DIR
+    - npm run lint
+
+test:
+  stage: validate
+  dependencies:
+    - install
+  script:
+    - cd $APP_DIR
+    - npm run test
+
+build:
+  stage: build
+  dependencies:
+    - install
+  script:
+    - cd $APP_DIR
+    - npx nx build emotion-diary --base-href ./
+  artifacts:
+    paths:
+      - emotion-app/dist/apps/emotion-diary/browser/
+
+pages:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - rm -rf public
+    - mkdir -p public
+    - cp -r emotion-app/dist/apps/emotion-diary/browser/* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "homework"'

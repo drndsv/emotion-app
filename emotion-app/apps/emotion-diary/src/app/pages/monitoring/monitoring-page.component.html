@@ -1,0 +1,86 @@
+@if (isLoading()) {
+  <div class="monitoring-page__centered">
+    <tui-loader />
+  </div>
+} @else if (errorMessage()) {
+  <section class="monitoring-page">
+    <p class="monitoring-page__empty">
+      {{ errorMessage() }}
+    </p>
+  </section>
+} @else if (summary(); as summary) {
+  <section class="monitoring-page">
+    <h1 class="monitoring-page__title">Мониторинг приложения</h1>
+
+    <div class="monitoring-page__cards">
+      <article
+        tuiCardLarge
+        class="monitoring-card"
+      >
+        <span class="monitoring-card__label">Всего логов</span>
+        <strong class="monitoring-card__value">{{ summary.totalLogs }}</strong>
+      </article>
+
+      <article
+        tuiCardLarge
+        class="monitoring-card"
+      >
+        <span class="monitoring-card__label">Событий</span>
+        <strong class="monitoring-card__value">{{ summary.totalEvents }}</strong>
+      </article>
+
+      <article
+        tuiCardLarge
+        class="monitoring-card"
+      >
+        <span class="monitoring-card__label">Ошибок</span>
+        <strong class="monitoring-card__value">{{ summary.totalErrors }}</strong>
+      </article>
+    </div>
+
+    <section
+      tuiCardLarge
+      class="monitoring-section"
+    >
+      <h2 class="monitoring-section__title">Популярные события</h2>
+
+      <div class="monitoring-table">
+        @for (event of summary.popularEvents; track event.name) {
+          <div class="monitoring-table__row">
+            <span>{{ event.name }}</span>
+            <strong>{{ event.count }}</strong>
+          </div>
+        } @empty {
+          <p class="monitoring-page__empty">Событий пока нет</p>
+        }
+      </div>
+    </section>
+
+    <section
+      tuiCardLarge
+      class="monitoring-section"
+    >
+      <h2 class="monitoring-section__title">Последние ошибки</h2>
+
+      <div class="monitoring-errors">
+        @for (error of summary.recentErrors; track error.id) {
+          <article
+            tuiCardLarge
+            class="monitoring-error"
+          >
+            <div class="monitoring-error__header">
+              <strong>{{ error.name }}</strong>
+              <span>{{ formatDate(error) }}</span>
+            </div>
+
+            <p class="monitoring-error__message">
+              {{ error.message || 'Без сообщения' }}
+            </p>
+          </article>
+        } @empty {
+          <p class="monitoring-page__empty">Ошибок пока нет</p>
+        }
+      </div>
+    </section>
+  </section>
+}

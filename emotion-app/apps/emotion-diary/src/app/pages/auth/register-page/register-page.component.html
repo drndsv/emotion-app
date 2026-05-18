@@ -1,0 +1,92 @@
+<section class="register-page">
+  <div class="register-page__card">
+    <a class="register-page__logo">
+      Emotion Diary
+    </a>
+
+    <h4 class="register-page__title">Регистрация</h4>
+
+    <form
+      tuiForm="m"
+      class="register-page__form"
+      [formGroup]="form"
+      (ngSubmit)="register()"
+    >
+      <div class="register-page__control">
+        <label tuiLabel>
+          Имя
+
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="text"
+              placeholder="Введите имя"
+              formControlName="name"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="name" />
+      </div>
+
+      <div class="register-page__control">
+        <label tuiLabel>
+          Email
+
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="email"
+              placeholder="Введите email"
+              formControlName="email"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="email" />
+      </div>
+
+      <div class="register-page__control">
+        <label tuiLabel>
+          Пароль
+
+          <tui-textfield class="register-page__field">
+            <input
+              tuiInput
+              type="password"
+              placeholder="Введите пароль"
+              formControlName="password"
+            />
+          </tui-textfield>
+        </label>
+
+        <tui-error formControlName="password" />
+      </div>
+
+      @if (errorMessage()) {
+        <p class="register-page__error">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="submit"
+        class="register-page__submit"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          Создание...
+        } @else {
+          Создать аккаунт
+        }
+      </button>
+    </form>
+
+    <a routerLink="/login" class="register-page__link">
+      Уже есть аккаунт? Войти
+    </a>
+  </div>
+</section>
