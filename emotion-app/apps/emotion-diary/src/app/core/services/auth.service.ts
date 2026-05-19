@@ -104,21 +104,28 @@ export class AuthService {
       );
   }
 
-  changeEmail(_currentPassword: string, _newEmail: string): Observable<void> {
+  changeEmail(currentPassword: string, newEmail: string): Observable<void> {
     return this.http
-      .put(`${this.api}/users/me`, {
-        displayName: this.currentUser?.displayName ?? '',
+      .put<AuthResponse>(`${this.api}/users/me/email`, {
+        currentPassword,
+        newEmail,
       })
-      .pipe(map(() => undefined));
+      .pipe(
+        tap((response) => {
+          this.applyAuth(response);
+        }),
+        map(() => undefined),
+      );
   }
 
   changePassword(
-    _currentPassword: string,
-    _newPassword: string,
+    currentPassword: string,
+    newPassword: string,
   ): Observable<void> {
     return this.http
-      .put(`${this.api}/users/me`, {
-        displayName: this.currentUser?.displayName ?? '',
+      .put(`${this.api}/users/me/password`, {
+        currentPassword,
+        newPassword,
       })
       .pipe(map(() => undefined));
   }

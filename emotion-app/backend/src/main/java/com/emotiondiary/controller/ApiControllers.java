@@ -61,6 +61,22 @@ public class ApiControllers {
     return auth.updateMe(uid(authentication), request);
   }
 
+  @PutMapping("/users/me/email")
+  AuthResponse changeEmail(
+    Authentication authentication,
+    @Valid @RequestBody Dto.ChangeEmailRequest request
+  ) {
+    return auth.changeEmail(uid(authentication), request);
+  }
+
+  @PutMapping("/users/me/password")
+  void changePassword(
+    Authentication authentication,
+    @Valid @RequestBody Dto.ChangePasswordRequest request
+  ) {
+    auth.changePassword(uid(authentication), request);
+  }
+
   @GetMapping("/journal")
   List<JournalResponse> all(Authentication authentication) {
     return journal.all(uid(authentication));

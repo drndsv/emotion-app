@@ -1,5 +1,6 @@
 package com.emotiondiary.service;
 
+import com.emotiondiary.dto.Dto;
 import com.emotiondiary.dto.Dto.AuthResponse;
 import com.emotiondiary.dto.Dto.LoginRequest;
 import com.emotiondiary.dto.Dto.RegisterRequest;
@@ -86,6 +87,52 @@ public class AuthService {
     users.save(user);
 
     return me(id);
+  }
+
+  public AuthResponse changeEmail(Long id, Dto.ChangeEmailRequest request) {
+    var user = users.findById(id)
+      .orElseThrow(() ->
+        new ApiException("User not found")
+      );
+
+    if (!encoder.matches(
+      request.currentPassword(),
+      user.getPasswordHash()
+    )) {
+      throw new ApiException("Invalid password");
+    }
+
+    users.findByEmail(request.newEmail()).ifPresent(existingUser -> {
+      if (!existingUser.getId().equals(id)) {
+        throw new ApiException("Email already exists");
+      }
+    });
+
+    user.setEmail(request.newEmail());
+
+    user = users.save(user);
+
+    return authResponse(user);
+  }
+
+  public void changePassword(Long id, Dto.ChangePasswordRequest request) {
+    var user = users.findById(id)
+      .orElseThrow(() ->
+        new ApiException("User not found")
+      );
+
+    if (!encoder.matches(
+      request.currentPassword(),
+      user.getPasswordHash()
+    )) {
+      throw new ApiException("Invalid password");
+    }
+
+    user.setPasswordHash(
+      encoder.encode(request.newPassword())
+    );
+
+    users.save(user);
   }
 
   private AuthResponse authResponse(AppUser user) {

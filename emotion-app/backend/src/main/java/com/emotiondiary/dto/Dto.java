@@ -37,6 +37,16 @@ public class Dto {
     @NotBlank String displayName
   ) {}
 
+  public record ChangeEmailRequest(
+    @NotBlank String currentPassword,
+    @Email String newEmail
+  ) {}
+
+  public record ChangePasswordRequest(
+    @NotBlank String currentPassword,
+    @Size(min = 6) String newPassword
+  ) {}
+
   public record AnalyzeRequest(
     @NotBlank String text
   ) {}
