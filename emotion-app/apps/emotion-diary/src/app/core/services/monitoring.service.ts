@@ -1,19 +1,17 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import {
-  MonitoringSummary,
-} from '../models/monitoring-stat.model';
+import { environment } from '../../../environments/environment';
+import { MonitoringSummary } from '../models/monitoring-stat.model';
 
 @Injectable({ providedIn: 'root' })
 export class MonitoringService {
+  private readonly api = environment.apiUrl;
+
+  constructor(private readonly http: HttpClient) {}
+
   getSummary(): Observable<MonitoringSummary> {
-    return of({
-      totalLogs: 0,
-      totalEvents: 0,
-      totalErrors: 0,
-      popularEvents: [],
-      recentErrors: [],
-    });
+    return this.http.get<MonitoringSummary>(`${this.api}/monitoring/summary`);
   }
 }

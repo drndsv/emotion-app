@@ -1,5 +1,6 @@
 package com.emotiondiary.controller;
 
+import com.emotiondiary.dto.Dto;
 import com.emotiondiary.dto.Dto.AnalyzeRequest;
 import com.emotiondiary.dto.Dto.AuthResponse;
 import com.emotiondiary.dto.Dto.EmotionAnalysisResult;
@@ -12,6 +13,7 @@ import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.service.AuthService;
 import com.emotiondiary.service.EmotionService;
 import com.emotiondiary.service.JournalService;
+import com.emotiondiary.service.LogService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,8 @@ public class ApiControllers {
   private final JournalService journal;
 
   private final EmotionService emotion;
+
+  private final LogService logs;
 
   private Long uid(Authentication authentication) {
     return Long.valueOf(authentication.getName());
@@ -113,5 +117,18 @@ public class ApiControllers {
       "message",
       "Not implemented yet"
     );
+  }
+
+  @PostMapping("/logs")
+  Dto.LogResponse createLog(
+    Authentication authentication,
+    @RequestBody Dto.LogRequest request
+  ) {
+    return logs.create(uid(authentication), request);
+  }
+
+  @GetMapping("/monitoring/summary")
+  Dto.MonitoringSummary monitoringSummary() {
+    return logs.summary();
   }
 }
