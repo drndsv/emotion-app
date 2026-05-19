@@ -67,7 +67,8 @@ public class AuthService {
       user.getId(),
       String.valueOf(user.getId()),
       user.getEmail(),
-      user.getDisplayName()
+      user.getDisplayName(),
+      user.getRole().name().toLowerCase()
     );
   }
 
@@ -91,13 +92,15 @@ public class AuthService {
     return new AuthResponse(
       jwt.generate(
         user.getId(),
-        user.getEmail()
+        user.getEmail(),
+        user.getRole()
       ),
       new UserResponse(
         user.getId(),
         String.valueOf(user.getId()),
         user.getEmail(),
-        user.getDisplayName()
+        user.getDisplayName(),
+        user.getRole().name().toLowerCase()
       )
     );
   }

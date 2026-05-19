@@ -26,7 +26,8 @@ public class Dto {
     Long id,
     String uid,
     String email,
-    String displayName
+    String displayName,
+    String role
   ) {}
 
   public record UpdateProfileRequest(

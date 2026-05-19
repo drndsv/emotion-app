@@ -1,5 +1,6 @@
 package com.emotiondiary.security;
 
+import com.emotiondiary.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,10 +25,11 @@ public class JwtService {
     );
   }
 
-  public String generate(Long userId, String email) {
+  public String generate(Long userId, String email, Role role) {
     return Jwts.builder()
       .subject(String.valueOf(userId))
       .claim("email", email)
+      .claim("role", role.name())
       .issuedAt(new Date())
       .expiration(
         new Date(System.currentTimeMillis() + expiration)

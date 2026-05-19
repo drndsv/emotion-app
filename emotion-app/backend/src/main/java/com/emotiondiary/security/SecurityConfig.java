@@ -1,5 +1,6 @@
 package com.emotiondiary.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 public class SecurityConfig {
+
   private final JwtService jwtService;
 
   public SecurityConfig(JwtService jwtService) {
@@ -36,47 +38,69 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity http, @Value("${app.cors-origin}") String origin)
-      throws Exception {
+  SecurityFilterChain filterChain(
+    HttpSecurity http,
+    @Value("${app.cors-origin}") String origin
+  ) throws Exception {
     return http
-        .csrf(c -> c.disable())
-        .cors(
-            c ->
-                c.configurationSource(
-                    request -> {
-                      var cfg = new CorsConfiguration();
-                      cfg.setAllowedOrigins(List.of(origin));
-                      cfg.setAllowedMethods(List.of("*"));
-                      cfg.setAllowedHeaders(List.of("*"));
-                      return cfg;
-                    }))
-        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-        .addFilterBefore(
-            new OncePerRequestFilter() {
-              @Override
-              protected void doFilterInternal(
-                  HttpServletRequest request,
-                  HttpServletResponse response,
-                  FilterChain filterChain)
-                  throws ServletException, IOException {
-                var header = request.getHeader(HttpHeaders.AUTHORIZATION);
-                if (header != null && header.startsWith("Bearer ")) {
-                  try {
-                    var claims = jwtService.parse(header.substring(7));
-                    var auth =
-                        new UsernamePasswordAuthenticationToken(
-                            claims.getSubject(), null, AuthorityUtils.NO_AUTHORITIES);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                  } catch (Exception ignored) {
-                    // unauthenticated request will be handled by Spring Security
-                  }
+      .csrf(csrf -> csrf.disable())
+      .cors(cors ->
+        cors.configurationSource(request -> {
+          var config = new CorsConfiguration();
+
+          config.setAllowedOrigins(List.of(origin));
+          config.setAllowedMethods(List.of("*"));
+          config.setAllowedHeaders(List.of("*"));
+
+          return config;
+        })
+      )
+      .sessionManagement(session ->
+        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .authorizeHttpRequests(auth ->
+        auth
+          .requestMatchers("/api/auth/**").permitAll()
+          .requestMatchers("/api/monitoring/**").hasRole("ADMIN")
+          .anyRequest().authenticated()
+      )
+      .addFilterBefore(
+        new OncePerRequestFilter() {
+          @Override
+          protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+          ) throws ServletException, IOException {
+            var header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+            if (header != null && header.startsWith("Bearer ")) {
+              try {
+                Claims claims = jwtService.parse(header.substring(7));
+                String role = claims.get("role", String.class);
+
+                if (role == null || role.isBlank()) {
+                  role = "USER";
                 }
-                filterChain.doFilter(request, response);
+
+                var authentication =
+                  new UsernamePasswordAuthenticationToken(
+                    claims.getSubject(),
+                    null,
+                    AuthorityUtils.createAuthorityList("ROLE_" + role)
+                  );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+              } catch (Exception ignored) {
+                SecurityContextHolder.clearContext();
               }
-            },
-            UsernamePasswordAuthenticationFilter.class)
-        .build();
+            }
+
+            filterChain.doFilter(request, response);
+          }
+        },
+        UsernamePasswordAuthenticationFilter.class
+      )
+      .build();
   }
 }
