@@ -1,18 +1,20 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   signal,
 } from '@angular/core';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter, withHashLocation } from '@angular/router';
+import { EMOTION_API_URL } from '@emotion-app/emotion-analysis';
 import { provideTaiga } from '@taiga-ui/core';
 import { TUI_LANGUAGE, TUI_RUSSIAN_LANGUAGE } from '@taiga-ui/i18n';
+
+import { environment } from '../environments/environment';
 
 import { appRoutes } from './app.routes';
 import { VALIDATION_ERRORS_PROVIDER } from './core/config/validation-errors';
 import { authTokenInterceptor } from './core/services/auth-token.interceptor';
-import { EMOTION_API_URL } from '@emotion-app/emotion-analysis';
-import { environment } from '../environments/environment';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
