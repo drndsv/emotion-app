@@ -47,6 +47,7 @@ import {
 import { formatJournalTime } from '../../../core/utils/date-format.util';
 import { groupJournalEntriesByDate } from '../../../core/utils/group-journal-entries.util';
 import { buildHeatmapCells } from '../../../core/utils/heatmap.util';
+import { journalDateToDate } from '../../../core/utils/journal-date.util';
 
 @Component({
   selector: 'app-dashboard-page',
