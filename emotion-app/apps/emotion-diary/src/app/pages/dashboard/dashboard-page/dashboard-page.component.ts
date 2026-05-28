@@ -114,7 +114,7 @@ export class DashboardPageComponent implements OnInit {
     const selectedMonth = this.selectedMonth();
 
     return this.entries().filter((entry) => {
-      const entryDate = entry.createdAt.toDate();
+      const entryDate = journalDateToDate(entry.createdAt);
 
       return (
         entryDate.getFullYear() === selectedMonth.getFullYear() &&
