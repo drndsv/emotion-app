@@ -1,6 +1,7 @@
 package com.emotiondiary.dto;
 import jakarta.validation.constraints.*;
 public class Dto {
+//  fff
   public record RegisterRequest(@Email String email,@Size(min=6) String password,@NotBlank String displayName){}
   public record LoginRequest(@Email String email,@NotBlank String password){}
   public record AuthResponse(String token,UserResponse user){}
