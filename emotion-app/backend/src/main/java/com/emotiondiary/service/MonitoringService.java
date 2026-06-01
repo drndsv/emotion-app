@@ -2,30 +2,32 @@ package com.emotiondiary.service;
 
 import com.emotiondiary.dto.Dto.AppLogRequest;
 import com.emotiondiary.dto.Dto.AppLogResponse;
+import com.emotiondiary.dto.Dto.MonitoringEventStat;
+import com.emotiondiary.dto.Dto.MonitoringSummary;
 import com.emotiondiary.entity.AppLog;
 import com.emotiondiary.entity.AppUser;
 import com.emotiondiary.exception.ApiException;
 import com.emotiondiary.repository.AppLogRepository;
 import com.emotiondiary.repository.UserRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MonitoringService {
+
+  private static final String EVENT_TYPE = "EVENT";
+  private static final String ERROR_LEVEL = "ERROR";
+
   private final AppLogRepository appLogRepository;
   private final UserRepository userRepository;
   private final LogTypeService logTypeService;
   private final LogLevelService logLevelService;
 
-  public MonitoringService(AppLogRepository appLogRepository, UserRepository userRepository, LogTypeService logTypeService, LogLevelService logLevelService) {
-    this.appLogRepository = appLogRepository;
-    this.userRepository = userRepository;
-    this.logTypeService = logTypeService;
-    this.logLevelService = logLevelService;
-  }
-
   public AppLogResponse create(Long userId, AppLogRequest request) {
-    AppUser user = userRepository.findById(userId).orElseThrow(() -> new ApiException("User not found"));
+    AppUser user = findUser(userId);
+
     AppLog log = new AppLog();
     log.setUser(user);
     log.setEventType(logTypeService.getOrCreate(request.type()));
@@ -33,17 +35,42 @@ public class MonitoringService {
     log.setName(request.name());
     log.setMessage(request.message());
     log.setDetails(request.details());
+
     return map(appLogRepository.save(log));
   }
 
   public List<AppLogResponse> latest(Long userId) {
-    AppUser user = userRepository.findById(userId).orElseThrow(() -> new ApiException("User not found"));
-    return appLogRepository.findTop100ByUserOrderByCreatedAtDesc(user).stream().map(this::map).toList();
+    return appLogRepository.findTop100ByUserOrderByCreatedAtDesc(findUser(userId)).stream()
+        .map(this::map)
+        .toList();
   }
 
-  public void systemLog(Long userId, String type, String level, String name, String message, String details) {
-    AppLogRequest req = new AppLogRequest(type, level, name, message, details);
-    create(userId, req);
+  public MonitoringSummary summary() {
+    List<MonitoringEventStat> popularEvents =
+        appLogRepository.findPopularEvents(EVENT_TYPE).stream()
+            .map(row -> new MonitoringEventStat(String.valueOf(row[0]), (Long) row[1]))
+            .toList();
+
+    List<AppLogResponse> recentErrors =
+        appLogRepository.findTop10ByLogLevelNameIgnoreCaseOrderByCreatedAtDesc(ERROR_LEVEL).stream()
+            .map(this::map)
+            .toList();
+
+    return new MonitoringSummary(
+        appLogRepository.count(),
+        appLogRepository.countByEventTypeNameIgnoreCase(EVENT_TYPE),
+        appLogRepository.countByLogLevelNameIgnoreCase(ERROR_LEVEL),
+        popularEvents,
+        recentErrors);
+  }
+
+  public void systemLog(
+      Long userId, String type, String level, String name, String message, String details) {
+    create(userId, new AppLogRequest(type, level, name, message, details));
+  }
+
+  private AppUser findUser(Long userId) {
+    return userRepository.findById(userId).orElseThrow(() -> new ApiException("User not found"));
   }
 
   private AppLogResponse map(AppLog log) {

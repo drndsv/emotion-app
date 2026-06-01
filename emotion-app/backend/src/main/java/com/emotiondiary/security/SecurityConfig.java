@@ -1,19 +1,23 @@
 package com.emotiondiary.security;
 
+import com.emotiondiary.entity.Role;
+import com.emotiondiary.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,12 +27,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-  private final JwtService jwtService;
 
-  public SecurityConfig(JwtService jwtService) {
-    this.jwtService = jwtService;
-  }
+  private final JwtService jwtService;
+  private final UserRepository userRepository;
 
   @Bean
   PasswordEncoder passwordEncoder() {
@@ -39,44 +43,58 @@ public class SecurityConfig {
   SecurityFilterChain filterChain(HttpSecurity http, @Value("${app.cors-origin}") String origin)
       throws Exception {
     return http
-        .csrf(c -> c.disable())
+        .csrf(csrf -> csrf.disable())
         .cors(
-            c ->
-                c.configurationSource(
+            cors ->
+                cors.configurationSource(
                     request -> {
-                      var cfg = new CorsConfiguration();
-                      cfg.setAllowedOrigins(List.of(origin));
-                      cfg.setAllowedMethods(List.of("*"));
-                      cfg.setAllowedHeaders(List.of("*"));
-                      return cfg;
+                      CorsConfiguration config = new CorsConfiguration();
+                      config.setAllowedOrigins(List.of(origin));
+                      config.setAllowedMethods(List.of("*"));
+                      config.setAllowedHeaders(List.of("*"));
+                      return config;
                     }))
-        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-        .addFilterBefore(
-            new OncePerRequestFilter() {
-              @Override
-              protected void doFilterInternal(
-                  HttpServletRequest request,
-                  HttpServletResponse response,
-                  FilterChain filterChain)
-                  throws ServletException, IOException {
-                var header = request.getHeader(HttpHeaders.AUTHORIZATION);
-                if (header != null && header.startsWith("Bearer ")) {
-                  try {
-                    var claims = jwtService.parse(header.substring(7));
-                    var auth =
-                        new UsernamePasswordAuthenticationToken(
-                            claims.getSubject(), null, AuthorityUtils.NO_AUTHORITIES);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                  } catch (Exception ignored) {
-                    // unauthenticated request will be handled by Spring Security
-                  }
-                }
-                filterChain.doFilter(request, response);
-              }
-            },
-            UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
         .build();
+  }
+
+  private OncePerRequestFilter jwtAuthenticationFilter() {
+    return new OncePerRequestFilter() {
+      @Override
+      protected void doFilterInternal(
+          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith("Bearer ")) {
+          authenticate(header.substring(7));
+        }
+        filterChain.doFilter(request, response);
+      }
+    };
+  }
+
+  private void authenticate(String token) {
+    try {
+      var claims = jwtService.parse(token);
+      Long userId = Long.valueOf(claims.getSubject());
+      userRepository
+          .findById(userId)
+          .ifPresent(
+              user -> {
+                Role role = user.getRole() == null ? Role.USER : user.getRole();
+                var authentication =
+                    new UsernamePasswordAuthenticationToken(
+                        claims.getSubject(),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+              });
+    } catch (Exception ignored) {
+      // Unauthenticated request will be handled by Spring Security.
+    }
   }
 }

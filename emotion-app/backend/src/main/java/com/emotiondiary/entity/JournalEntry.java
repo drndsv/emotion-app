@@ -5,15 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "journal_entry")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,16 +27,23 @@ public class JournalEntry {
   private Long id;
 
   @ManyToOne(optional = false)
+  @JoinColumn(name = "user_id")
   private AppUser user;
 
   @Column(columnDefinition = "text", nullable = false)
   private String text;
 
-  private String selectedEmotion;
+  @ManyToOne
+  @JoinColumn(name = "selected_emotion_id")
+  private Emotion selectedEmotion;
 
-  private String detectedEmotion;
+  @ManyToOne
+  @JoinColumn(name = "detected_emotion_id")
+  private Emotion detectedEmotion;
 
-  private String finalEmotion;
+  @ManyToOne
+  @JoinColumn(name = "final_emotion_id")
+  private Emotion finalEmotion;
 
   @Column(columnDefinition = "text")
   private String analysis;
@@ -46,13 +56,13 @@ public class JournalEntry {
   private Instant updatedAt;
 
   @PrePersist
-  void pre() {
+  void prePersist() {
     createdAt = Instant.now();
     updatedAt = createdAt;
   }
 
   @PreUpdate
-  void upd() {
+  void preUpdate() {
     updatedAt = Instant.now();
   }
 }

@@ -1,6 +1,6 @@
-export type AppLogType = 'event' | 'error';
+export type AppLogType = 'EVENT' | 'ERROR';
 
-export type AppLogLevel = 'info' | 'error';
+export type AppLogLevel = 'INFO' | 'ERROR';
 
 export interface AppLog {
   type: AppLogType;
