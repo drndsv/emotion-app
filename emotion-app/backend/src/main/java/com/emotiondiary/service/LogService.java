@@ -1,17 +1,15 @@
 package com.emotiondiary.service;
 
-import com.emotiondiary.dto.Dto.LogRequest;
-import com.emotiondiary.dto.Dto.LogResponse;
+import com.emotiondiary.dto.Dto.AppLogRequest;
+import com.emotiondiary.dto.Dto.AppLogResponse;
 import com.emotiondiary.dto.Dto.MonitoringEventStat;
 import com.emotiondiary.dto.Dto.MonitoringSummary;
 import com.emotiondiary.entity.AppLog;
-import com.emotiondiary.entity.AppUser;
 import com.emotiondiary.exception.ApiException;
 import com.emotiondiary.repository.AppLogRepository;
+import com.emotiondiary.repository.LogLevelRepository;
+import com.emotiondiary.repository.LogTypeRepository;
 import com.emotiondiary.repository.UserRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,28 +19,35 @@ public class LogService {
 
   private final AppLogRepository logs;
   private final UserRepository users;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final LogTypeRepository logTypes;
+  private final LogLevelRepository logLevels;
 
-  public LogResponse create(Long userId, LogRequest request) {
-    var log = new AppLog();
-
-    AppUser user = users.findById(userId)
+  public AppLogResponse create(Long userId, AppLogRequest request) {
+    var user = users.findById(userId)
       .orElseThrow(() -> new ApiException("User not found"));
 
+    var type = logTypes.findByName(request.type())
+      .orElseThrow(() -> new ApiException("Log type not found"));
+
+    var level = logLevels.findByName(request.level())
+      .orElseThrow(() -> new ApiException("Log level not found"));
+
+    var log = new AppLog();
+
     log.setUser(user);
-    log.setType(request.type());
-    log.setLevel(request.level());
+    log.setEventType(type);
+    log.setLogLevel(level);
     log.setName(request.name());
     log.setMessage(request.message());
-    log.setDetails(toJson(request.details()));
+    log.setDetails(request.details());
 
     return map(logs.save(log));
   }
 
   public MonitoringSummary summary() {
     var totalLogs = logs.count();
-    var totalEvents = logs.countByType("event");
-    var totalErrors = logs.countByType("error");
+    var totalEvents = logs.countByEventTypeName("event");
+    var totalErrors = logs.countByEventTypeName("error");
 
     var popularEvents = logs.findPopularEvents()
       .stream()
@@ -52,7 +57,7 @@ public class LogService {
       ))
       .toList();
 
-    var recentErrors = logs.findTop10ByTypeOrderByCreatedAtDesc("error")
+    var recentErrors = logs.findTop10ByEventTypeNameOrderByCreatedAtDesc("error")
       .stream()
       .map(this::map)
       .toList();
@@ -66,43 +71,15 @@ public class LogService {
     );
   }
 
-  private LogResponse map(AppLog log) {
-    return new LogResponse(
+  private AppLogResponse map(AppLog log) {
+    return new AppLogResponse(
       log.getId(),
-      log.getUser() == null ? null : log.getUser().getId(),
-      log.getType(),
-      log.getLevel(),
+      log.getLogLevel().getName(),
+      log.getEventType().getName(),
       log.getName(),
       log.getMessage(),
-      fromJson(log.getDetails()),
+      log.getDetails(),
       String.valueOf(log.getCreatedAt())
     );
-  }
-
-  private String toJson(Map<String, Object> details) {
-    if (details == null) {
-      return null;
-    }
-
-    try {
-      return objectMapper.writeValueAsString(details);
-    } catch (Exception exception) {
-      return "{}";
-    }
-  }
-
-  private Map<String, Object> fromJson(String details) {
-    if (details == null || details.isBlank()) {
-      return Map.of();
-    }
-
-    try {
-      return objectMapper.readValue(
-        details,
-        new TypeReference<Map<String, Object>>() {}
-      );
-    } catch (Exception exception) {
-      return Map.of();
-    }
   }
 }

@@ -18,7 +18,7 @@ export const adminGuard: CanActivateFn = () => {
         return of(router.createUrlTree(['/login']));
       }
 
-      return userService.getUserById().pipe(
+      return userService.getCurrentUser().pipe(
         map((appUser) => {
           if (appUser?.role === 'admin') {
             return true;

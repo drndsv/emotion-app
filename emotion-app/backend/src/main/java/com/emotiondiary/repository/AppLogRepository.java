@@ -1,10 +1,26 @@
 package com.emotiondiary.repository;
 
 import com.emotiondiary.entity.AppLog;
-import com.emotiondiary.entity.AppUser;
 import java.util.List;
+
+import com.emotiondiary.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface AppLogRepository extends JpaRepository<AppLog, Long> {
+
+  long countByEventTypeName(String name);
+
+  List<AppLog> findTop10ByEventTypeNameOrderByCreatedAtDesc(String name);
+
+  @Query("""
+            select l.name, count(l)
+            from AppLog l
+            where l.eventType.name = 'event'
+            group by l.name
+            order by count(l) desc
+            """)
+  List<Object[]> findPopularEvents();
+
   List<AppLog> findTop100ByUserOrderByCreatedAtDesc(AppUser user);
 }

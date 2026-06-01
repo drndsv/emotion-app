@@ -1,5 +1,8 @@
 package com.emotiondiary.dto;
 import jakarta.validation.constraints.*;
+
+import java.util.List;
+
 public class Dto {
 //  fff
   public record RegisterRequest(@Email String email,@Size(min=6) String password,@NotBlank String displayName){}
@@ -14,4 +17,15 @@ public class Dto {
 
   public record AppLogRequest(@NotBlank String type,@NotBlank String level,@NotBlank String name,String message,String details){}
   public record AppLogResponse(Long id,String level,String type,String name,String message,String details,String createdAt){}
+
+  public record MonitoringEventStat(String name, Long count) {}
+
+  public record MonitoringSummary(
+    Long totalLogs,
+    Long totalEvents,
+    Long totalErrors,
+    List<MonitoringEventStat> popularEvents,
+    List<AppLogResponse> recentErrors
+  ) {}
+
 }
