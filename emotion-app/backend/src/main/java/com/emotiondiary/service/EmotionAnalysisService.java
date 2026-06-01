@@ -21,6 +21,48 @@ public class EmotionAnalysisService {
   private final RestClient restClient = RestClient.builder().build();
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  private static final String EMOTION_ANALYSIS_PROMPT = """
+Проанализируй эмоциональное состояние человека по тексту.
+
+Выбери ТОЛЬКО ОДНО итоговое состояние из списка:
+
+- joy — радость, воодушевление, удовольствие, позитив
+- calm — спокойствие, расслабленность, устойчивое состояние
+- neutral — нейтральное состояние, без ярко выраженной эмоции
+- anxiety — тревога, напряжение, страх, беспокойство, нервозность
+- anger — злость, раздражение, агрессия, фрустрация
+- sadness — грусть, усталость, подавленность, печаль
+
+Даже если эмоций несколько, выбери наиболее выраженное итоговое эмоциональное состояние.
+
+Если в тексте сначала описаны позитивные события, но в конце человек чувствует себя плохо — ориентируйся именно на итоговое состояние человека.
+
+Верни ответ СТРОГО в JSON формате.
+Не используй markdown.
+Не добавляй пояснения до или после JSON.
+
+Формат ответа:
+
+{
+  "detectedEmotion": "joy | calm | neutral | anxiety | anger | sadness",
+  "analysis": "краткий анализ на русском языке в 1-2 предложениях",
+  "recommendation": "краткая рекомендация на русском языке в 1-2 предложениях"
+}
+
+В поле detectedEmotion верни только одно из значений:
+
+joy
+calm
+neutral
+anxiety
+anger
+sadness
+
+Рекомендация должна быть поддерживающей и безопасной.
+Не ставь диагнозы.
+Не используй медицинские заключения.
+""";
+
   @Value("${app.gigachat.auth-url}")
   private String authUrl;
 
@@ -81,32 +123,37 @@ public class EmotionAnalysisService {
 
   private String callGigaChat(String token, String text) {
     Map<String, Object> payload =
-        Map.of(
-            "model", "GigaChat",
-            "temperature", 0.2,
-            "messages",
-                List.of(
-                    Map.of(
-                        "role", "system",
-                        "content",
-                        "Ты анализируешь эмоции. Верни ТОЛЬКО JSON без markdown: "
-                            + "{\"detectedEmotion\":\"joy|sadness|anxiety|anger|calm|neutral\","
-                            + "\"analysis\":\"...\",\"recommendation\":\"...\"}"),
-                    Map.of("role", "user", "content", text)));
+      Map.of(
+        "model",
+        "GigaChat",
+        "temperature",
+        0.2,
+        "messages",
+        List.of(
+          Map.of(
+            "role",
+            "system",
+            "content",
+            EMOTION_ANALYSIS_PROMPT),
+          Map.of(
+            "role",
+            "user",
+            "content",
+            text)));
 
     JsonNode response =
-        restClient
-            .post()
-            .uri(apiUrl)
-            .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer " + token)
-            .body(payload)
-            .retrieve()
-            .body(JsonNode.class);
+      restClient
+        .post()
+        .uri(apiUrl)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("Authorization", "Bearer " + token)
+        .body(payload)
+        .retrieve()
+        .body(JsonNode.class);
 
     return response == null
-        ? ""
-        : response.path("choices").path(0).path("message").path("content").asText("");
+      ? ""
+      : response.path("choices").path(0).path("message").path("content").asText("");
   }
 
   private JsonNode extractJson(String content) throws Exception {
