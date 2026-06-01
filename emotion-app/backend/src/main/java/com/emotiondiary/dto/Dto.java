@@ -14,7 +14,7 @@ public class Dto {
 
   public record AuthResponse(String token, UserResponse user) {}
 
-  public record UserResponse(Long id, String uid, String email, String displayName) {}
+  public record UserResponse(Long id, String uid, String email, String displayName, String role) {}
 
   public record UpdateProfileRequest(@NotBlank String displayName) {}
 

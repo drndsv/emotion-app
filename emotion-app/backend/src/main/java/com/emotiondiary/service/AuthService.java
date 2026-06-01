@@ -6,6 +6,7 @@ import com.emotiondiary.dto.Dto.RegisterRequest;
 import com.emotiondiary.dto.Dto.UpdateProfileRequest;
 import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.entity.AppUser;
+import com.emotiondiary.entity.Role;
 import com.emotiondiary.exception.ApiException;
 import com.emotiondiary.repository.UserRepository;
 import com.emotiondiary.security.JwtService;
@@ -31,6 +32,7 @@ public class AuthService {
     user.setEmail(request.email());
     user.setPasswordHash(passwordEncoder.encode(request.password()));
     user.setDisplayName(request.displayName());
+    user.setRole(Role.USER);
 
     AppUser savedUser = userRepository.save(user);
     monitoringService.systemLog(
@@ -48,7 +50,8 @@ public class AuthService {
       throw new ApiException("Invalid credentials");
     }
 
-    monitoringService.systemLog(user.getId(), "AUTH", "INFO", "LOGIN", "User logged in", user.getEmail());
+    monitoringService.systemLog(
+        user.getId(), "AUTH", "INFO", "LOGIN", "User logged in", user.getEmail());
     return authResponse(user);
   }
 
@@ -60,7 +63,8 @@ public class AuthService {
     AppUser user = findUser(id);
     user.setDisplayName(request.displayName());
     AppUser savedUser = userRepository.save(user);
-    monitoringService.systemLog(id, "AUTH", "INFO", "PROFILE_UPDATED", "User updated profile", null);
+    monitoringService.systemLog(
+        id, "AUTH", "INFO", "PROFILE_UPDATED", "User updated profile", null);
     return mapUser(savedUser);
   }
 
@@ -69,11 +73,20 @@ public class AuthService {
   }
 
   private AuthResponse authResponse(AppUser user) {
-    return new AuthResponse(jwtService.generate(user.getId(), user.getEmail()), mapUser(user));
+    return new AuthResponse(
+        jwtService.generate(user.getId(), user.getEmail(), resolveRole(user)), mapUser(user));
+  }
+
+  private Role resolveRole(AppUser user) {
+    return user.getRole() == null ? Role.USER : user.getRole();
   }
 
   private UserResponse mapUser(AppUser user) {
     return new UserResponse(
-        user.getId(), String.valueOf(user.getId()), user.getEmail(), user.getDisplayName());
+        user.getId(),
+        String.valueOf(user.getId()),
+        user.getEmail(),
+        user.getDisplayName(),
+        resolveRole(user).name().toLowerCase());
   }
 }

@@ -1,5 +1,7 @@
 package com.emotiondiary.security;
 
+import com.emotiondiary.entity.Role;
+import com.emotiondiary.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,9 +14,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,10 +27,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
   private final JwtService jwtService;
+  private final UserRepository userRepository;
 
   @Bean
   PasswordEncoder passwordEncoder() {
@@ -75,10 +80,19 @@ public class SecurityConfig {
   private void authenticate(String token) {
     try {
       var claims = jwtService.parse(token);
-      var authentication =
-          new UsernamePasswordAuthenticationToken(
-              claims.getSubject(), null, AuthorityUtils.NO_AUTHORITIES);
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+      Long userId = Long.valueOf(claims.getSubject());
+      userRepository
+          .findById(userId)
+          .ifPresent(
+              user -> {
+                Role role = user.getRole() == null ? Role.USER : user.getRole();
+                var authentication =
+                    new UsernamePasswordAuthenticationToken(
+                        claims.getSubject(),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+              });
     } catch (Exception ignored) {
       // Unauthenticated request will be handled by Spring Security.
     }
