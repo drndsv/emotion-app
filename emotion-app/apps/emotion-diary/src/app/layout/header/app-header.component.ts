@@ -37,7 +37,7 @@ export class AppHeaderComponent implements OnInit {
             return of(null);
           }
 
-          return this.userService.getUserById(user.uid).pipe(
+          return this.userService.getUserById().pipe(
             catchError(() => {
               return of(null);
             }),

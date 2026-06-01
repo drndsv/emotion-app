@@ -2,6 +2,7 @@ import { EmotionState } from '@emotion-app/shared';
 import { TuiDay } from '@taiga-ui/cdk';
 
 import { JournalEntry } from '../models/journal-entry.model';
+import { journalDateToDate } from './journal-date.util';
 
 export function filterJournalEntries(params: {
   entries: readonly JournalEntry[];
@@ -25,7 +26,7 @@ export function filterJournalEntries(params: {
 
     const matchesDate =
       params.selectedDate === null ||
-      isSameDate(entry.createdAt.toDate(), params.selectedDate);
+      isSameDate(journalDateToDate(entry.createdAt), params.selectedDate);
 
     return matchesQuery && matchesState && matchesDate;
   });
