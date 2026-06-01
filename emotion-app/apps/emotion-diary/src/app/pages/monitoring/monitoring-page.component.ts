@@ -50,12 +50,11 @@ export class MonitoringPageComponent implements OnInit {
   }
 
   protected formatDate(log: AppLogResponse): string {
-    const raw = log.createdAt;
-    if (!raw) {
+    if (!log.createdAt) {
       return MONITORING_MESSAGES.unknownDate;
     }
 
-    const date = raw instanceof Date ? raw : new Date(raw);
+    const date = new Date(log.createdAt);
 
     if (Number.isNaN(date.getTime())) {
       return MONITORING_MESSAGES.unknownDate;

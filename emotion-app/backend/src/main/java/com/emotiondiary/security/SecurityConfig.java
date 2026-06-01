@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,38 +41,60 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity http, @Value("${app.cors-origin}") String origin)
-      throws Exception {
+  SecurityFilterChain filterChain(
+    HttpSecurity http,
+    @Value("${app.cors-origin}") String origin
+  ) throws Exception {
     return http
-        .csrf(csrf -> csrf.disable())
-        .cors(
-            cors ->
-                cors.configurationSource(
-                    request -> {
-                      CorsConfiguration config = new CorsConfiguration();
-                      config.setAllowedOrigins(List.of(origin));
-                      config.setAllowedMethods(List.of("*"));
-                      config.setAllowedHeaders(List.of("*"));
-                      return config;
-                    }))
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .build();
+      .csrf(csrf -> csrf.disable())
+      .cors(cors ->
+        cors.configurationSource(request -> {
+          CorsConfiguration config = new CorsConfiguration();
+          config.setAllowedOrigins(List.of(origin));
+          config.setAllowedMethods(List.of(
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "OPTIONS"
+          ));
+          config.setAllowedHeaders(List.of("*"));
+          config.setAllowCredentials(true);
+
+          return config;
+        })
+      )
+      .sessionManagement(session ->
+        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        .requestMatchers("/api/auth/**").permitAll()
+        .anyRequest().authenticated()
+      )
+      .addFilterBefore(
+        jwtAuthenticationFilter(),
+        UsernamePasswordAuthenticationFilter.class
+      )
+      .build();
   }
 
   private OncePerRequestFilter jwtAuthenticationFilter() {
     return new OncePerRequestFilter() {
       @Override
       protected void doFilterInternal(
-          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException {
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+      ) throws ServletException, IOException {
+        SecurityContextHolder.clearContext();
+
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (header != null && header.startsWith("Bearer ")) {
           authenticate(header.substring(7));
         }
+
         filterChain.doFilter(request, response);
       }
     };
@@ -81,20 +104,23 @@ public class SecurityConfig {
     try {
       var claims = jwtService.parse(token);
       Long userId = Long.valueOf(claims.getSubject());
+
       userRepository
-          .findById(userId)
-          .ifPresent(
-              user -> {
-                Role role = user.getRole() == null ? Role.USER : user.getRole();
-                var authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        claims.getSubject(),
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-              });
+        .findById(userId)
+        .ifPresent(user -> {
+          Role role = user.getRole() == null ? Role.USER : user.getRole();
+
+          var authentication =
+            new UsernamePasswordAuthenticationToken(
+              claims.getSubject(),
+              null,
+              List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
+            );
+
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+        });
     } catch (Exception ignored) {
-      // Unauthenticated request will be handled by Spring Security.
+      SecurityContextHolder.clearContext();
     }
   }
 }
