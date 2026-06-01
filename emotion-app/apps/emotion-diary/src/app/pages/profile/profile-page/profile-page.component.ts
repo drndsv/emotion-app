@@ -175,7 +175,7 @@ export class ProfilePageComponent implements OnInit {
           this.isEmailEditMode.set(false);
           this.newEmailControl.reset();
           this.emailPasswordControl.reset();
-          this.successMessage.set(PROFILE_MESSAGES.emailConfirmationSent);
+          this.successMessage.set(PROFILE_MESSAGES.emailChanged);
 
           this.loggerService
             .logEvent(LOGGER_EVENTS.emailChanged)

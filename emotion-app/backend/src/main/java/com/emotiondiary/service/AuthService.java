@@ -3,6 +3,8 @@ package com.emotiondiary.service;
 import com.emotiondiary.dto.Dto.AuthResponse;
 import com.emotiondiary.dto.Dto.LoginRequest;
 import com.emotiondiary.dto.Dto.RegisterRequest;
+import com.emotiondiary.dto.Dto.UpdateEmailRequest;
+import com.emotiondiary.dto.Dto.UpdatePasswordRequest;
 import com.emotiondiary.dto.Dto.UpdateProfileRequest;
 import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.entity.AppUser;
@@ -66,6 +68,41 @@ public class AuthService {
     monitoringService.systemLog(
         id, "AUTH", "INFO", "PROFILE_UPDATED", "User updated profile", null);
     return mapUser(savedUser);
+  }
+
+  public AuthResponse updateEmail(Long id, UpdateEmailRequest request) {
+    AppUser user = findUser(id);
+    validateCurrentPassword(request.currentPassword(), user);
+
+    userRepository
+        .findByEmail(request.newEmail())
+        .filter(existingUser -> !existingUser.getId().equals(id))
+        .ifPresent(
+            existingUser -> {
+              throw new ApiException("Email already exists");
+            });
+
+    user.setEmail(request.newEmail());
+    AppUser savedUser = userRepository.save(user);
+    monitoringService.systemLog(
+        id, "AUTH", "INFO", "EMAIL_UPDATED", "User updated email", savedUser.getEmail());
+    return authResponse(savedUser);
+  }
+
+  public void updatePassword(Long id, UpdatePasswordRequest request) {
+    AppUser user = findUser(id);
+    validateCurrentPassword(request.currentPassword(), user);
+
+    user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+    userRepository.save(user);
+    monitoringService.systemLog(
+        id, "AUTH", "INFO", "PASSWORD_UPDATED", "User updated password", null);
+  }
+
+  private void validateCurrentPassword(String currentPassword, AppUser user) {
+    if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+      throw new ApiException("Invalid credentials");
+    }
   }
 
   private AppUser findUser(Long id) {

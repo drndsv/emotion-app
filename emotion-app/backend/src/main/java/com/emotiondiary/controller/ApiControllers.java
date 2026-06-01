@@ -10,6 +10,8 @@ import com.emotiondiary.dto.Dto.JournalResponse;
 import com.emotiondiary.dto.Dto.LoginRequest;
 import com.emotiondiary.dto.Dto.MonitoringSummary;
 import com.emotiondiary.dto.Dto.RegisterRequest;
+import com.emotiondiary.dto.Dto.UpdateEmailRequest;
+import com.emotiondiary.dto.Dto.UpdatePasswordRequest;
 import com.emotiondiary.dto.Dto.UpdateProfileRequest;
 import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.service.AuthService;
@@ -59,6 +61,18 @@ public class ApiControllers {
   public UserResponse updateMe(
       Authentication authentication, @Valid @RequestBody UpdateProfileRequest request) {
     return authService.updateMe(uid(authentication), request);
+  }
+
+  @PutMapping("/users/me/email")
+  public AuthResponse updateEmail(
+      Authentication authentication, @Valid @RequestBody UpdateEmailRequest request) {
+    return authService.updateEmail(uid(authentication), request);
+  }
+
+  @PutMapping("/users/me/password")
+  public void updatePassword(
+      Authentication authentication, @Valid @RequestBody UpdatePasswordRequest request) {
+    authService.updatePassword(uid(authentication), request);
   }
 
   @GetMapping("/journal")

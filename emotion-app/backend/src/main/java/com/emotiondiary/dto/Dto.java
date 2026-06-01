@@ -18,6 +18,12 @@ public class Dto {
 
   public record UpdateProfileRequest(@NotBlank String displayName) {}
 
+  public record UpdateEmailRequest(
+      @NotBlank String currentPassword, @NotBlank @Email String newEmail) {}
+
+  public record UpdatePasswordRequest(
+      @NotBlank String currentPassword, @Size(min = 6) String newPassword) {}
+
   public record AnalyzeRequest(@NotBlank String text) {}
 
   public record EmotionAnalysisResult(

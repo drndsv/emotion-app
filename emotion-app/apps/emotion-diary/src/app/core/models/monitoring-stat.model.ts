@@ -1,13 +1,4 @@
-export interface AppLogDocument {
-  id: string;
-  type: 'event' | 'error';
-  level: 'info' | 'error';
-  name: string;
-  userId: string | null;
-  message?: string;
-  details?: Record<string, unknown>;
-  createdAt?: Date | string;
-}
+import { AppLogResponse } from './app-log.model';
 
 export interface MonitoringEventStat {
   name: string;
@@ -19,5 +10,5 @@ export interface MonitoringSummary {
   totalEvents: number;
   totalErrors: number;
   popularEvents: readonly MonitoringEventStat[];
-  recentErrors: readonly AppLogDocument[];
+  recentErrors: readonly AppLogResponse[];
 }
