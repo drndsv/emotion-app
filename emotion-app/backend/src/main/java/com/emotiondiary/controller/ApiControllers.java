@@ -28,15 +28,15 @@ public class ApiControllers {
 
   private Long uid(Authentication a) { return Long.valueOf(a.getName()); }
 
-  @PostMapping("/auth/register") AuthResponse register(@Valid @RequestBody RegisterRequest r){return auth.register(r);} 
-  @PostMapping("/auth/login") AuthResponse login(@Valid @RequestBody LoginRequest r){return auth.login(r);} 
-  @GetMapping("/users/me") UserResponse me(Authentication a){return auth.me(uid(a));} 
-  @PutMapping("/users/me") UserResponse upd(Authentication a,@Valid @RequestBody UpdateProfileRequest r){return auth.updateMe(uid(a),r);} 
-  @GetMapping("/journal") List<JournalResponse> all(Authentication a){return journal.all(uid(a));} 
-  @GetMapping("/journal/{id}") JournalResponse get(Authentication a,@PathVariable Long id){return journal.get(uid(a),id);} 
-  @PostMapping("/journal") JournalResponse create(Authentication a,@Valid @RequestBody JournalRequest r){return journal.create(uid(a),r);} 
-  @PutMapping("/journal/{id}") JournalResponse update(Authentication a,@PathVariable Long id,@Valid @RequestBody JournalRequest r){return journal.update(uid(a),id,r);} 
-  @DeleteMapping("/journal/{id}") void del(Authentication a,@PathVariable Long id){journal.del(uid(a),id);} 
+  @PostMapping("/auth/register") AuthResponse register(@Valid @RequestBody RegisterRequest r){return auth.register(r);}
+  @PostMapping("/auth/login") AuthResponse login(@Valid @RequestBody LoginRequest r){return auth.login(r);}
+  @GetMapping("/users/me") UserResponse me(Authentication a){return auth.me(uid(a));}
+  @PutMapping("/users/me") UserResponse upd(Authentication a,@Valid @RequestBody UpdateProfileRequest r){return auth.updateMe(uid(a),r);}
+  @GetMapping("/journal") List<JournalResponse> all(Authentication a){return journal.all(uid(a));}
+  @GetMapping("/journal/{id}") JournalResponse get(Authentication a,@PathVariable Long id){return journal.get(uid(a),id);}
+  @PostMapping("/journal") JournalResponse create(Authentication a,@Valid @RequestBody JournalRequest r){return journal.create(uid(a),r);}
+  @PutMapping("/journal/{id}") JournalResponse update(Authentication a,@PathVariable Long id,@Valid @RequestBody JournalRequest r){return journal.update(uid(a),id,r);}
+  @DeleteMapping("/journal/{id}") void del(Authentication a,@PathVariable Long id){journal.del(uid(a),id);}
   @PostMapping("/emotion/analyze") EmotionAnalysisResult analyze(@Valid @RequestBody AnalyzeRequest r){return emotion.analyze(r.text());}
 
   @PostMapping("/monitoring/logs")
@@ -45,6 +45,6 @@ public class ApiControllers {
   @GetMapping("/monitoring/logs")
   List<AppLogResponse> logs(Authentication a) { return monitoring.latest(uid(a)); }
 
-  @GetMapping("/analytics/emotions") Map<String,Long> emotions(Authentication a){return Map.of();} 
+  @GetMapping("/analytics/emotions") Map<String,Long> emotions(Authentication a){return Map.of();}
   @GetMapping("/analytics/summary") Map<String,Object> summary(Authentication a){return Map.of("message","Not implemented yet");}
 }

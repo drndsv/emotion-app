@@ -1,11 +1,26 @@
 package com.emotiondiary.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import java.time.Instant;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "app_log")
+@Getter
+@Setter
+@NoArgsConstructor
 public class AppLog {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -35,22 +50,7 @@ public class AppLog {
   private Instant createdAt;
 
   @PrePersist
-  void prePersist() { createdAt = Instant.now(); }
-
-  public Long getId() { return id; }
-  public void setId(Long id) { this.id = id; }
-  public AppUser getUser() { return user; }
-  public void setUser(AppUser user) { this.user = user; }
-  public LogType getEventType() { return eventType; }
-  public void setEventType(LogType eventType) { this.eventType = eventType; }
-  public LogLevel getLogLevel() { return logLevel; }
-  public void setLogLevel(LogLevel logLevel) { this.logLevel = logLevel; }
-  public String getName() { return name; }
-  public void setName(String name) { this.name = name; }
-  public String getMessage() { return message; }
-  public void setMessage(String message) { this.message = message; }
-  public String getDetails() { return details; }
-  public void setDetails(String details) { this.details = details; }
-  public Instant getCreatedAt() { return createdAt; }
-  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+  void prePersist() {
+    createdAt = Instant.now();
+  }
 }
