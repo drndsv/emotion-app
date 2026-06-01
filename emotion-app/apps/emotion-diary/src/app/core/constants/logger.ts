@@ -1,5 +1,3 @@
-export const APP_LOGS_COLLECTION = 'appLogs';
-
 export const LOGGER_MESSAGES = {
   eventSaved: 'App event saved',
   errorSaved: 'App error saved',

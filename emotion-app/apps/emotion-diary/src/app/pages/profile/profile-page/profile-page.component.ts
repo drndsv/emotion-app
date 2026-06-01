@@ -167,7 +167,10 @@ export class ProfilePageComponent implements OnInit {
     this.clearMessages();
 
     this.authService
-      .changeEmail(this.emailPasswordControl.value, this.newEmailControl.value)
+      .changeEmail({
+        currentPassword: this.emailPasswordControl.value,
+        newEmail: this.newEmailControl.value,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -175,7 +178,7 @@ export class ProfilePageComponent implements OnInit {
           this.isEmailEditMode.set(false);
           this.newEmailControl.reset();
           this.emailPasswordControl.reset();
-          this.successMessage.set(PROFILE_MESSAGES.emailConfirmationSent);
+          this.successMessage.set(PROFILE_MESSAGES.emailChanged);
 
           this.loggerService
             .logEvent(LOGGER_EVENTS.emailChanged)
@@ -207,11 +210,10 @@ export class ProfilePageComponent implements OnInit {
     this.isChangingPassword.set(true);
     this.clearMessages();
 
-    this.authService
-      .changePassword(
-        this.currentPasswordControl.value,
-        this.newPasswordControl.value,
-      )
+    this.authService.changePassword({
+      currentPassword: this.currentPasswordControl.value,
+      newPassword: this.newPasswordControl.value,
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

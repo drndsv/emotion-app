@@ -14,7 +14,8 @@ import {
   MONITORING_DATE_LOCALE,
   MONITORING_MESSAGES,
 } from '../../core/constants/monitoring';
-import { AppLogDocument, MonitoringSummary } from '../../core/models/monitoring-stat.model';
+import { AppLogResponse } from '../../core/models/app-log.model';
+import { MonitoringSummary } from '../../core/models/monitoring-stat.model';
 import { MonitoringService } from '../../core/services/monitoring.service';
 
 @Component({
@@ -48,11 +49,17 @@ export class MonitoringPageComponent implements OnInit {
       });
   }
 
-  protected formatDate(log: AppLogDocument): string {
-    const raw = log.createdAt;
-    if (!raw) return MONITORING_MESSAGES.unknownDate;
-    const date = raw instanceof Date ? raw : new Date(raw);
-    if (Number.isNaN(date.getTime())) return MONITORING_MESSAGES.unknownDate;
+  protected formatDate(log: AppLogResponse): string {
+    if (!log.createdAt) {
+      return MONITORING_MESSAGES.unknownDate;
+    }
+
+    const date = new Date(log.createdAt);
+
+    if (Number.isNaN(date.getTime())) {
+      return MONITORING_MESSAGES.unknownDate;
+    }
+
     return date.toLocaleString(MONITORING_DATE_LOCALE);
   }
 }
