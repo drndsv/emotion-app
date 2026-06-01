@@ -1,19 +1,18 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import {
   MonitoringSummary,
 } from '../models/monitoring-stat.model';
 
 @Injectable({ providedIn: 'root' })
 export class MonitoringService {
+  private readonly http = inject(HttpClient);
   getSummary(): Observable<MonitoringSummary> {
-    return of({
-      totalLogs: 0,
-      totalEvents: 0,
-      totalErrors: 0,
-      popularEvents: [],
-      recentErrors: [],
-    });
+    return this.http.get<MonitoringSummary>(
+      `${environment.apiUrl}/analytics/summary`,
+    );
   }
 }
