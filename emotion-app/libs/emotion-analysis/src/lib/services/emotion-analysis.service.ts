@@ -1,30 +1,32 @@
-import { Injectable } from '@angular/core';
-import { getFunctionsInstance } from '@emotion-app/firebase';
-import { httpsCallable } from 'firebase/functions';
-import { from, map, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 
-import { ANALYZE_EMOTION_FUNCTION_NAME } from '../constants/emotion-analysis';
-import {
-  AnalyzeEmotionRequest,
-  EmotionAnalysisResult,
-} from '../models/emotion-analysis-result.model';
+import { EmotionAnalysisResult } from '../models/emotion-analysis-result.model';
+import { EMOTION_API_URL } from '../tokens/api-url.token';
 
-@Injectable({
-  providedIn: 'root',
-})
+type BackendEmotionAnalysisResult = {
+  detectedEmotion: string;
+  analysis: string;
+  recommendation: string;
+};
+
+@Injectable({ providedIn: 'root' })
 export class EmotionAnalysisService {
-  private readonly functions = getFunctionsInstance();
-
-  private readonly analyzeEmotionCallable = httpsCallable<
-    AnalyzeEmotionRequest,
-    EmotionAnalysisResult
-  >(this.functions, ANALYZE_EMOTION_FUNCTION_NAME);
+  constructor(
+    private readonly http: HttpClient,
+    @Inject(EMOTION_API_URL) private readonly apiUrl: string,
+  ) {}
 
   analyze(text: string): Observable<EmotionAnalysisResult> {
-    return from(
-      this.analyzeEmotionCallable({
-        text,
-      }),
-    ).pipe(map((result) => result.data));
+    return this.http
+      .post<BackendEmotionAnalysisResult>(`${this.apiUrl}/emotion/analyze`, { text })
+      .pipe(
+        map((result) => ({
+          detectedState: (result.detectedEmotion ?? 'neutral') as EmotionAnalysisResult['detectedState'],
+          analysis: result.analysis ?? '',
+          recommendation: result.recommendation ?? '',
+        })),
+      );
   }
 }

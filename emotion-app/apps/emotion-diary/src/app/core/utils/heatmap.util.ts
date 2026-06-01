@@ -1,6 +1,7 @@
 import { DayPeriodOption } from '../models/day-period.model';
 import { HeatmapCell } from '../models/heatmap-cell.model';
 import { JournalEntry } from '../models/journal-entry.model';
+import { journalDateToDate, journalDateToMillis } from './journal-date.util';
 
 export function buildHeatmapCells(params: {
   entries: readonly JournalEntry[];
@@ -44,7 +45,7 @@ function findEntriesByDayAndPeriod(params: {
 }): readonly JournalEntry[] {
   return params.entries
     .filter((entry) => {
-      const entryDate = entry.createdAt.toDate();
+      const entryDate = journalDateToDate(entry.createdAt);
       const hour = entryDate.getHours();
 
       return (
@@ -56,6 +57,6 @@ function findEntriesByDayAndPeriod(params: {
       );
     })
     .sort(
-      (first, second) => first.createdAt.seconds - second.createdAt.seconds,
+      (first, second) => journalDateToMillis(first.createdAt) - journalDateToMillis(second.createdAt),
     );
 }
