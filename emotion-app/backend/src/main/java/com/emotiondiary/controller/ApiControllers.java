@@ -1,50 +1,126 @@
 package com.emotiondiary.controller;
 
-import com.emotiondiary.dto.Dto.*;
+import com.emotiondiary.dto.Dto.AnalyzeRequest;
+import com.emotiondiary.dto.Dto.AppLogRequest;
+import com.emotiondiary.dto.Dto.AppLogResponse;
+import com.emotiondiary.dto.Dto.AuthResponse;
+import com.emotiondiary.dto.Dto.EmotionAnalysisResult;
+import com.emotiondiary.dto.Dto.JournalRequest;
+import com.emotiondiary.dto.Dto.JournalResponse;
+import com.emotiondiary.dto.Dto.LoginRequest;
+import com.emotiondiary.dto.Dto.MonitoringSummary;
+import com.emotiondiary.dto.Dto.RegisterRequest;
+import com.emotiondiary.dto.Dto.UpdateProfileRequest;
+import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.service.AuthService;
-import com.emotiondiary.service.EmotionService;
+import com.emotiondiary.service.EmotionAnalysisService;
 import com.emotiondiary.service.JournalService;
 import com.emotiondiary.service.MonitoringService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ApiControllers {
-  private final AuthService auth;
-  private final JournalService journal;
-  private final EmotionService emotion;
-  private final MonitoringService monitoring;
 
-  public ApiControllers(AuthService auth, JournalService journal, EmotionService emotion, MonitoringService monitoring) {
-    this.auth = auth;
-    this.journal = journal;
-    this.emotion = emotion;
-    this.monitoring = monitoring;
+  private final AuthService authService;
+  private final JournalService journalService;
+  private final EmotionAnalysisService emotionAnalysisService;
+  private final MonitoringService monitoringService;
+
+  @PostMapping("/auth/register")
+  public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+    return authService.register(request);
   }
 
-  private Long uid(Authentication a) { return Long.valueOf(a.getName()); }
+  @PostMapping("/auth/login")
+  public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+    return authService.login(request);
+  }
 
-  @PostMapping("/auth/register") AuthResponse register(@Valid @RequestBody RegisterRequest r){return auth.register(r);}
-  @PostMapping("/auth/login") AuthResponse login(@Valid @RequestBody LoginRequest r){return auth.login(r);}
-  @GetMapping("/users/me") UserResponse me(Authentication a){return auth.me(uid(a));}
-  @PutMapping("/users/me") UserResponse upd(Authentication a,@Valid @RequestBody UpdateProfileRequest r){return auth.updateMe(uid(a),r);}
-  @GetMapping("/journal") List<JournalResponse> all(Authentication a){return journal.all(uid(a));}
-  @GetMapping("/journal/{id}") JournalResponse get(Authentication a,@PathVariable Long id){return journal.get(uid(a),id);}
-  @PostMapping("/journal") JournalResponse create(Authentication a,@Valid @RequestBody JournalRequest r){return journal.create(uid(a),r);}
-  @PutMapping("/journal/{id}") JournalResponse update(Authentication a,@PathVariable Long id,@Valid @RequestBody JournalRequest r){return journal.update(uid(a),id,r);}
-  @DeleteMapping("/journal/{id}") void del(Authentication a,@PathVariable Long id){journal.del(uid(a),id);}
-  @PostMapping("/emotion/analyze") EmotionAnalysisResult analyze(@Valid @RequestBody AnalyzeRequest r){return emotion.analyze(r.text());}
+  @GetMapping("/users/me")
+  public UserResponse me(Authentication authentication) {
+    return authService.me(uid(authentication));
+  }
+
+  @PutMapping("/users/me")
+  public UserResponse updateMe(
+      Authentication authentication, @Valid @RequestBody UpdateProfileRequest request) {
+    return authService.updateMe(uid(authentication), request);
+  }
+
+  @GetMapping("/journal")
+  public List<JournalResponse> all(Authentication authentication) {
+    return journalService.all(uid(authentication));
+  }
+
+  @GetMapping("/journal/{id}")
+  public JournalResponse get(Authentication authentication, @PathVariable Long id) {
+    return journalService.get(uid(authentication), id);
+  }
+
+  @PostMapping("/journal")
+  public JournalResponse create(
+      Authentication authentication, @Valid @RequestBody JournalRequest request) {
+    return journalService.create(uid(authentication), request);
+  }
+
+  @PutMapping("/journal/{id}")
+  public JournalResponse update(
+      Authentication authentication,
+      @PathVariable Long id,
+      @Valid @RequestBody JournalRequest request) {
+    return journalService.update(uid(authentication), id, request);
+  }
+
+  @DeleteMapping("/journal/{id}")
+  public void delete(Authentication authentication, @PathVariable Long id) {
+    journalService.delete(uid(authentication), id);
+  }
+
+  @PostMapping("/emotion/analyze")
+  public EmotionAnalysisResult analyze(@Valid @RequestBody AnalyzeRequest request) {
+    return emotionAnalysisService.analyze(request.text());
+  }
 
   @PostMapping("/monitoring/logs")
-  AppLogResponse createLog(Authentication a, @Valid @RequestBody AppLogRequest r) { return monitoring.create(uid(a), r); }
+  public AppLogResponse createLog(
+      Authentication authentication, @Valid @RequestBody AppLogRequest request) {
+    return monitoringService.create(uid(authentication), request);
+  }
 
   @GetMapping("/monitoring/logs")
-  List<AppLogResponse> logs(Authentication a) { return monitoring.latest(uid(a)); }
+  public List<AppLogResponse> logs(Authentication authentication) {
+    return monitoringService.latest(uid(authentication));
+  }
 
-  @GetMapping("/analytics/emotions") Map<String,Long> emotions(Authentication a){return Map.of();}
-  @GetMapping("/analytics/summary") Map<String,Object> summary(Authentication a){return Map.of("message","Not implemented yet");}
+  @GetMapping("/analytics/emotions")
+  public Map<String, Long> emotions(Authentication authentication) {
+    return journalService.all(uid(authentication)).stream()
+        .filter(entry -> entry.finalEmotion() != null)
+        .collect(
+            java.util.stream.Collectors.groupingBy(
+                JournalResponse::finalEmotion, java.util.stream.Collectors.counting()));
+  }
+
+  @GetMapping("/analytics/summary")
+  public MonitoringSummary summary() {
+    return monitoringService.summary();
+  }
+
+  private Long uid(Authentication authentication) {
+    return Long.valueOf(authentication.getName());
+  }
 }

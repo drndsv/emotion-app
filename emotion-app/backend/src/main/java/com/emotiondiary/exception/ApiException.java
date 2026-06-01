@@ -1,1 +1,8 @@
-package com.emotiondiary.exception; public class ApiException extends RuntimeException{ public ApiException(String m){super(m);} }
+package com.emotiondiary.exception;
+
+public class ApiException extends RuntimeException {
+
+  public ApiException(String message) {
+    super(message);
+  }
+}

@@ -1,29 +1,79 @@
 package com.emotiondiary.service;
 
-import com.emotiondiary.dto.Dto.*;
+import com.emotiondiary.dto.Dto.AuthResponse;
+import com.emotiondiary.dto.Dto.LoginRequest;
+import com.emotiondiary.dto.Dto.RegisterRequest;
+import com.emotiondiary.dto.Dto.UpdateProfileRequest;
+import com.emotiondiary.dto.Dto.UserResponse;
 import com.emotiondiary.entity.AppUser;
 import com.emotiondiary.exception.ApiException;
 import com.emotiondiary.repository.UserRepository;
 import com.emotiondiary.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
-  private final UserRepository users;
-  private final PasswordEncoder encoder;
-  private final JwtService jwt;
+
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
   private final MonitoringService monitoringService;
 
-  public AuthService(UserRepository users, PasswordEncoder encoder, JwtService jwt, MonitoringService monitoringService) {
-    this.users = users;
-    this.encoder = encoder;
-    this.jwt = jwt;
-    this.monitoringService = monitoringService;
+  public AuthResponse register(RegisterRequest request) {
+    if (userRepository.findByEmail(request.email()).isPresent()) {
+      throw new ApiException("Email already exists");
+    }
+
+    AppUser user = new AppUser();
+    user.setEmail(request.email());
+    user.setPasswordHash(passwordEncoder.encode(request.password()));
+    user.setDisplayName(request.displayName());
+
+    AppUser savedUser = userRepository.save(user);
+    monitoringService.systemLog(
+        savedUser.getId(), "AUTH", "INFO", "REGISTER", "User registered", savedUser.getEmail());
+    return authResponse(savedUser);
   }
 
-  public AuthResponse register(RegisterRequest r){ if(users.findByEmail(r.email()).isPresent()) throw new ApiException("Email already exists"); var u=new AppUser(); u.setEmail(r.email()); u.setPasswordHash(encoder.encode(r.password())); u.setDisplayName(r.displayName()); u=users.save(u); monitoringService.systemLog(u.getId(),"AUTH","INFO","REGISTER","User registered",u.getEmail()); return authResp(u); }
-  public AuthResponse login(LoginRequest r){ var u=users.findByEmail(r.email()).orElseThrow(()->new ApiException("Invalid credentials")); if(!encoder.matches(r.password(),u.getPasswordHash())) throw new ApiException("Invalid credentials"); monitoringService.systemLog(u.getId(),"AUTH","INFO","LOGIN","User logged in",u.getEmail()); return authResp(u);} 
-  public UserResponse me(Long id){var u=users.findById(id).orElseThrow(()->new ApiException("User not found")); return new UserResponse(u.getId(),String.valueOf(u.getId()),u.getEmail(),u.getDisplayName());}
-  public UserResponse updateMe(Long id,UpdateProfileRequest req){var u=users.findById(id).orElseThrow(()->new ApiException("User not found")); u.setDisplayName(req.displayName()); users.save(u); monitoringService.systemLog(id,"AUTH","INFO","PROFILE_UPDATED","User updated profile",null); return me(id);} private AuthResponse authResp(AppUser u){return new AuthResponse(jwt.generate(u.getId(),u.getEmail()),new UserResponse(u.getId(),String.valueOf(u.getId()),u.getEmail(),u.getDisplayName()));}
+  public AuthResponse login(LoginRequest request) {
+    AppUser user =
+        userRepository
+            .findByEmail(request.email())
+            .orElseThrow(() -> new ApiException("Invalid credentials"));
+
+    if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+      throw new ApiException("Invalid credentials");
+    }
+
+    monitoringService.systemLog(user.getId(), "AUTH", "INFO", "LOGIN", "User logged in", user.getEmail());
+    return authResponse(user);
+  }
+
+  public UserResponse me(Long id) {
+    return mapUser(findUser(id));
+  }
+
+  public UserResponse updateMe(Long id, UpdateProfileRequest request) {
+    AppUser user = findUser(id);
+    user.setDisplayName(request.displayName());
+    AppUser savedUser = userRepository.save(user);
+    monitoringService.systemLog(id, "AUTH", "INFO", "PROFILE_UPDATED", "User updated profile", null);
+    return mapUser(savedUser);
+  }
+
+  private AppUser findUser(Long id) {
+    return userRepository.findById(id).orElseThrow(() -> new ApiException("User not found"));
+  }
+
+  private AuthResponse authResponse(AppUser user) {
+    return new AuthResponse(jwtService.generate(user.getId(), user.getEmail()), mapUser(user));
+  }
+
+  private UserResponse mapUser(AppUser user) {
+    return new UserResponse(
+        user.getId(), String.valueOf(user.getId()), user.getEmail(), user.getDisplayName());
+  }
 }
