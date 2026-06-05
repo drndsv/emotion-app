@@ -16,7 +16,7 @@
  * Настроенный контекст безопасности приложения.
  *
  * Связанные модули:
- * AuthService, JwtService, ApiControllers.
+ * AuthService, JwtService, AuthController, UserController, JournalController, EmotionController, MonitoringController, AnalyticsController.
  */
 package com.emotiondiary.security;
 
