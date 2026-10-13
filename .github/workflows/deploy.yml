@@ -4,7 +4,7 @@ name: Deploy Emotion Diary to GitHub Pages
 on:
   push:
     branches:
-      - deploy/github-pages
+      - master
   workflow_dispatch:
 
 permissions:
