@@ -112,7 +112,7 @@
 * Jest
 * ESLint
 * Prettier
-* GitLab CI/CD
+* GitHub CI/CD
 
 ---
 
