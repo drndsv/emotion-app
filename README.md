@@ -16,7 +16,7 @@
 
 ## Ссылка на приложение
 
-[https://final-project-2-semester-85b1a8.edu-gitlab.ru/](https://final-project-2-semester-85b1a8.edu-gitlab.ru/)
+[https://drndsv.github.io/emotion-app/](https://drndsv.github.io/emotion-app/)
 
 ---
 
@@ -184,12 +184,14 @@ nx build emotion-diary
 
 ## CI/CD
 
-В проекте настроен GitLab CI/CD:
+В проекте настроен CI/CD:
 
 * автоматический запуск линтинга;
 * автоматический запуск тестов;
 * автоматическая сборка проекта;
 * деплой приложения.
+
+Обновление от 13.10.2026: переехали на c GitLab на GitHub
 
 ---
 

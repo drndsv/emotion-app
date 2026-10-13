@@ -4,6 +4,7 @@ export const FUNCTIONS_MAX_INSTANCES = 10;
 
 export const FUNCTIONS_ALLOWED_ORIGINS = [
   'http://localhost:4200',
+  'https://drndsv.github.io',
   'https://final-project-2-semester-85b1a8.edu-gitlab.ru',
 ];
 
